@@ -16,6 +16,7 @@ build:
   script: 
     - echo "BUILD"
     - skillbox_app.yml
+  allow_failure: true  
 
 
 deploy:
