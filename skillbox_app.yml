@@ -1,0 +1,42 @@
+---
+- hosts: _App_Server_in_ASG
+  become: true
+  vars:
+    repository: https://gitlab.com/miklashevich.a/service.git
+    app_path: diploma
+    
+  tasks:
+    - name: "ping"
+      ping:
+
+    - name: remove nginx
+      apt:
+        name: nginx
+        state: absent  
+
+    - name: "Create app folder"
+      file:
+        dest="{{ app_path }}"
+        state=directory
+
+    - name: "Clone the repository"
+      git: 
+        repo: "{{ repository }}"
+        dest: "{{ app_path }}"      
+
+    - name: Copy unit file to app_server
+      copy:
+        src: skillbox-app.service
+        dest: /etc/systemd/system/
+        mode: 777
+
+    - name: Start a service with systemd
+      systemd:
+        name: skillbox-app.service
+        state: started
+
+    - name: Enable app service
+      systemd:
+        name: skillbox-app.service
+        state: started 
+
