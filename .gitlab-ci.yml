@@ -5,7 +5,11 @@ stages:
 
 build:
   stage: build
-  script: echo "BUILD"
+  script: 
+    - echo "BUILD"
+    - skillbox_app.yml
+
+
 
 test:
   stage: test
