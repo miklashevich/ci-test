@@ -1,7 +1,7 @@
 stages:
     - build
     - test
-    - depoly
+    - deploy
 
 build:
   stage: build
