@@ -7,7 +7,7 @@ test:
   stage: test
   script: 
     - echo "TEST"
-    - ./run-tests.sh
+    - run-tests.sh
 
 build:
   stage: build
