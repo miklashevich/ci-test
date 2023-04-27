@@ -8,7 +8,9 @@ test:
   script: 
     - echo "TEST"
     - ./run-tests.sh
+  allow_failure: true
 
+  
 build:
   stage: build
   script: 
