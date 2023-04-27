@@ -1,7 +1,13 @@
 stages:
-    - build
     - test
+    - build
     - deploy
+
+test:
+  stage: test
+  script: 
+    - echo "TEST"
+    - ./run-tests.sh
 
 build:
   stage: build
@@ -9,11 +15,6 @@ build:
     - echo "BUILD"
     - skillbox_app.yml
 
-
-
-test:
-  stage: test
-  script: echo "TEST"
 
 deploy:
   stage: deploy
