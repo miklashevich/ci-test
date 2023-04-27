@@ -1,0 +1,16 @@
+stages:
+    - build
+    - test
+    - depoly
+
+build:
+  stage: build
+  script: echo "BUILD"
+
+test:
+  stage: test
+  script: echo "TEST"
+
+deploy:
+  stage: deploy
+  script: echo "DEPLOY"
