@@ -7,7 +7,7 @@ test:
   stage: test
   script: 
     - echo "TEST"
-    - ./run-tests.sh
+    - "./run-tests.sh"
   allow_failure: true
 
   
@@ -15,7 +15,7 @@ build:
   stage: build
   script: 
     - echo "BUILD"
-    - skillbox_app.yml
+    - ansible-playbook ./ansible/skillbox_app.yml
   allow_failure: true  
 
 
