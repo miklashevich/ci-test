@@ -1,5 +1,5 @@
 ---
-- hosts: _App_Server_in_ASG
+- hosts: app_server_in_ASG
   become: true
   vars:
     repository: https://gitlab.com/miklashevich.a/service.git
