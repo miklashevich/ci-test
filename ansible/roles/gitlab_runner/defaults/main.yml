@@ -1,0 +1,27 @@
+---
+# defaults file for gitlab_runner
+
+# These are the setting you need to register a runner.
+gitlab_runner_registration_token: "GR1348941zVsDbRfiWZ64e_TrVN36"
+
+# The name as shown in the GitLab webinterface.
+gitlab_runner_name: "{{ ansible_fqdn }}"
+
+# The URL to register the runner to.
+gitlab_runner_url: "https://gitlab.com/"
+
+# The list of tags.
+gitlab_runner_tags: [vm_aws_docker_runner]
+
+# The type of executor. Choose from: "ssh", "shell", "parallels", "virtualbox",
+# "docker", "docker_machine", "kubernetes" or "custom"
+gitlab_runner_executor: docker
+
+# The docker image to run.
+gitlab_runner_docker_image: "alpine:latest"
+
+# The version of the GitLab runner to install.
+gitlab_runner_version: "15.5.0"
+
+# Set the amount of concurrent jobs.
+gitlab_runner_concurrency: "{{ ansible_processor_vcpus }}"
