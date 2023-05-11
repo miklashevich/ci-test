@@ -16,9 +16,9 @@ build:
   script: 
     - echo "BUILD"
 
-.run-playbook:
+run-playbook:
   script:
-    - ansible-playbook ansible/skillbox_app.yml
+    - ansible-playbook /ansible/skillbox_app.yml
   allow_failure: true  
 
 
