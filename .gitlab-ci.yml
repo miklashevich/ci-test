@@ -14,9 +14,11 @@ build:
   before_script:
     - export ANSIBLE_CONFIG=./ansible.cfg
     - eval $(ssh-agent -s)
-    - echo "$SSH_KEY" | tr -d '\r' | ssh-add -
+    - ssh-add -K ~/.ssh/id_rsa
+    #- echo "$SSH_KEY" | tr -d '\r' | ssh-add -
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
+    
   script:
     - echo "BUILD"
     - ansible-playbook -i inventory /ansible/skillbox_app.yml
