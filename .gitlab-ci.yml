@@ -19,7 +19,7 @@ build:
     - chmod 700 ~/.ssh
   script:
     - echo "BUILD"
-    - ansible-playbook /ansible/skillbox_app.yml -l app_server_in_ASG
+    - ansible-playbook -i inventory /ansible/skillbox_app.yml
   allow_failure: true 
   
 
