@@ -18,6 +18,8 @@ build:
 #    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
 #    - mkdir -p ~/.ssh
 #    - chmod 700 ~/.ssh
+  image:
+    name: devupsen/ansible:6.5.1
     
   script:
     - echo "BUILD"
