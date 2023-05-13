@@ -13,11 +13,11 @@ test:
 build:
   before_script:
     - export ANSIBLE_CONFIG=./ansible.cfg
-#    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client git -y )'
-#    - eval $(ssh-agent -s)
-#    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
-#    - mkdir -p ~/.ssh
-#    - chmod 700 ~/.ssh
+    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client git -y )'
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
   image:
     name: uhligit/ansible:2.1.0-3-g46e41b3
     
