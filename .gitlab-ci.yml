@@ -19,7 +19,7 @@ build:
 #    - mkdir -p ~/.ssh
 #    - chmod 700 ~/.ssh
   image:
-    name: devupsen/ansible:6.5.1
+    name: uhligit/ansible:2.1.0-3-g46e41b3
     
   script:
     - echo "BUILD"
