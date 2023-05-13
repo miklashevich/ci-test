@@ -21,7 +21,7 @@ build:
     
   script:
     - echo "BUILD"
-    - ansible-playbook -i inventory /ansible/skillbox_app.yml
+    - ansible-playbook /ansible/skillbox_app.yml -i ./inventory --private-key="SSH_PRIVATE_KEY"
   allow_failure: true 
   
 
