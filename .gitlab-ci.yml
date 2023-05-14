@@ -5,6 +5,8 @@ stages:
 
 test:
   stage: test
+  image:
+    name: docker:stable
   script: 
     - echo "TEST"
     - ./run-tests.sh
@@ -24,6 +26,8 @@ build:
   script:
     - echo "BUILD"
     - ansible-playbook ansible/skillbox_app.yml -i ./inventory --private-key $SSH_PRIVATE_KEY
+#  tags: 
+#    - vm_aws_docker_runner  
   allow_failure: true 
   
 
