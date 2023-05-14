@@ -13,6 +13,7 @@ test:
   allow_failure: true
 
 build:
+  stage: build
   before_script:
     - export ANSIBLE_CONFIG=./ansible.cfg
 #    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client git -y )'
