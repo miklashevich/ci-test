@@ -17,7 +17,7 @@ test:
 build:
   stage: build
   before_script:
-  #  - export ANSIBLE_CONFIG=./ansible.cfg
+    - export ANSIBLE_CONFIG=./ansible.cfg
     - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
     - eval $(ssh-agent -s)
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
@@ -35,8 +35,8 @@ build:
     
   script:
     - echo "BUILD"
-    - ansible all -m ping -v 
-    - ansible-playbook ansible/skillbox_app.yml -i ./inventory --private-key secret/ansible.key
+    - ansible all -m ping -i ./inventory 
+    - ansible-playbook ansible/skillbox_app.yml -i ./inventory 
   tags: 
     - vm_aws_docker_runner  
   allow_failure: true 
