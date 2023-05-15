@@ -36,7 +36,7 @@ build:
   script:
     - echo "BUILD"
     - ansible all -m ping -i ./inventory 
-    - ansible-playbook ansible/skillbox_app.yml -i ./inventory 
+    - ansible-playbook ansible/skillbox_app.yml -i ./inventory -b
   tags: 
     - vm_aws_docker_runner  
   allow_failure: true 
