@@ -29,6 +29,7 @@ build:
     
   script:
     - echo "BUILD"
+    - ansible all -m ping -v --key-file $SSH_PRIVATE_KEY
     - ansible-playbook ansible/skillbox_app.yml -i ./inventory --key-file $SSH_PRIVATE_KEY
   tags: 
     - vm_aws_docker_runner  
