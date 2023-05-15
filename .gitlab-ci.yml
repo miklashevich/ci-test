@@ -24,6 +24,10 @@ build:
   #  - ssh-add "$SSH_PRIVATE_KEY"
   #  - mkdir -p ~/.ssh
   #  - chmod 700 ~/.ssh
+    - mkdir secret
+    - echo "$SSH_PRIVATE_KEY" > secret/ansible.key ## import ansible ssh key
+    - chmod 400 secret/ansible.key
+    - export ANSIBLE_HOST_KEY_CHECKING=False
   image:
     name: uhligit/ansible:2.1.0-3-g46e41b3
     
