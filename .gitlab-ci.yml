@@ -5,25 +5,40 @@ stages:
 
 test:
   stage: test
+  image:
+    name: ubuntu:focal
   script: 
     - echo "TEST"
     - ./run-tests.sh
+  tags: 
+    - vm_aws_docker_runner   
   allow_failure: true
 
 build:
+  stage: build
   before_script:
     - export ANSIBLE_CONFIG=./ansible.cfg
-#    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client git -y )'
-#    - eval $(ssh-agent -s)
-#    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
-#    - mkdir -p ~/.ssh
-#    - chmod 700 ~/.ssh
+    - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+
+  #  - mkdir secret
+  #  - echo "$SSH_PRIVATE_KEY" > secret/ansible.key ## import ansible ssh key
+  #  - chmod 400 secret/ansible.key
+  #  - export ANSIBLE_HOST_KEY_CHECKING=False
   image:
     name: uhligit/ansible:2.1.0-3-g46e41b3
     
   script:
     - echo "BUILD"
-    - ansible-playbook ansible/skillbox_app.yml -i ./inventory --private-key="SSH_PRIVATE_KEY"
+    - ansible all -m ping -i ./inventory 
+    - ansible-playbook ansible/skillbox_app.yml -i ./inventory -b -vv
+  tags: 
+    - vm_aws_docker_runner  
   allow_failure: true 
   
 
