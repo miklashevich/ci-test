@@ -18,16 +18,16 @@ build:
   stage: build
   before_script:
     - export ANSIBLE_CONFIG=./ansible.cfg
-  #  - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
-  #  - eval $(ssh-agent -s)
-  #  - chmod 400 "$SSH_PRIVATE_KEY"
-  #  - ssh-add "$SSH_PRIVATE_KEY"
-  #  - mkdir -p ~/.ssh
-  #  - chmod 700 ~/.ssh
-    - mkdir secret
-    - echo "$SSH_PRIVATE_KEY" > secret/ansible.key ## import ansible ssh key
-    - chmod 400 secret/ansible.key
-    - export ANSIBLE_HOST_KEY_CHECKING=False
+    - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
+    - eval $(ssh-agent -s)
+    - chmod 400 "$SSH_PRIVATE_KEY"
+    - ssh-add "$SSH_PRIVATE_KEY"
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+  #  - mkdir secret
+  #  - echo "$SSH_PRIVATE_KEY" > secret/ansible.key ## import ansible ssh key
+  #  - chmod 400 secret/ansible.key
+  #  - export ANSIBLE_HOST_KEY_CHECKING=False
   image:
     name: uhligit/ansible:2.1.0-3-g46e41b3
     
