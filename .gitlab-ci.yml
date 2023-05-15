@@ -33,8 +33,8 @@ build:
     
   script:
     - echo "BUILD"
-    - ansible all -m ping -v --key-file $SSH_PRIVATE_KEY
-    - ansible-playbook ansible/skillbox_app.yml -i ./inventory --key-file $SSH_PRIVATE_KEY
+    - ansible all -m ping -v --key-file secret/ansible.key
+    - ansible-playbook ansible/skillbox_app.yml -i ./inventory --private-key secret/ansible.key
   tags: 
     - vm_aws_docker_runner  
   allow_failure: true 
