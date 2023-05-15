@@ -10,6 +10,8 @@ test:
   script: 
     - echo "TEST"
     - ./run-tests.sh
+  tags: 
+    - vm_aws_docker_runner   
   allow_failure: true
 
 build:
