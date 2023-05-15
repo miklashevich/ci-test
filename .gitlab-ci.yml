@@ -28,7 +28,7 @@ build:
   script:
     - echo "BUILD"
     - ansible-playbook ansible/skillbox_app.yml -i ./inventory --private-key $SSH_PRIVATE_KEY
-#  tags: 
+#  tag: 
 #    - vm_aws_docker_runner  
   allow_failure: true 
   
