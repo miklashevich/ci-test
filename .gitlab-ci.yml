@@ -20,10 +20,12 @@ build:
     - export ANSIBLE_CONFIG=./ansible.cfg
     - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
     - eval $(ssh-agent -s)
-    - chmod 400 "$SSH_PRIVATE_KEY"
-    - ssh-add "$SSH_PRIVATE_KEY"
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
+    - ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+
   #  - mkdir secret
   #  - echo "$SSH_PRIVATE_KEY" > secret/ansible.key ## import ansible ssh key
   #  - chmod 400 secret/ansible.key
@@ -33,7 +35,7 @@ build:
     
   script:
     - echo "BUILD"
-    - ansible all -m ping -v --key-file secret/ansible.key
+    - ansible all -m ping -v 
     - ansible-playbook ansible/skillbox_app.yml -i ./inventory --private-key secret/ansible.key
   tags: 
     - vm_aws_docker_runner  
