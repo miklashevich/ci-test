@@ -34,7 +34,7 @@
 
     - name: Start a service with systemd
       systemd:
-        daemon_reload: yes
+        daemon_reload: true
         name: skillbox-app.service
         state: started
 
