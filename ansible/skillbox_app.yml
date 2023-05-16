@@ -4,7 +4,8 @@
   vars:
     repository: https://gitlab.com/miklashevich.a/service.git
     app_path: diploma
-    
+
+
   tasks:
     - name: "ping"
       ping:
@@ -26,7 +27,7 @@
 
     - name: Copy unit file to app_server
       copy:
-        src: skillbox-app.service
+        src: /ansible/templates/skillbox-app.service.j2
         dest: /etc/systemd/system/
         mode: 777
 
