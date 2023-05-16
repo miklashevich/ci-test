@@ -27,7 +27,7 @@
         dest: "{{ app_path }}"      
 
     - name: Copy unit file to app_server
-      copy:
+      template:
         src: ./ansible/templates/skillbox-app.service.j2
         dest: /etc/systemd/system/
         mode: 777
