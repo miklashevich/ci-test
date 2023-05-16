@@ -29,13 +29,13 @@
     - name: Copy unit file to app_server
       template:
         src: skillbox-app.service.j2
-        dest: /etc/systemd/system/
+        dest: /etc/systemd/system/skillbox-app.service
         mode: 777
 
     - name: Start a service with systemd
       systemd:
         daemon_reload: true
-        name: skillbox-app.service.j2
+        name: skillbox-app.service
         state: started
 
     - name: Enable app service
