@@ -1,8 +1,45 @@
 stages:
-    - test
     - build
+    - test
     - deploy
 
+
+Docker Build:
+  stage: build
+  image: docker:stable
+  services:
+    - docker:dind
+  script:
+    - docker login -u gitlab-ci-token -p ${CI_JOB_TOKEN} ${CI_REGISTRY}
+    - docker build -t ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}:${CI_COMMIT_REF_SLUG} .
+    - docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}:${CI_COMMIT_REF_SLUG}
+  tags:
+    - hp-docker-runner
+
+
+Deploy:
+  stage: deploy    
+  before_script:
+    - export ANSIBLE_CONFIG=./ansible.cfg
+    - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+
+  image:
+    name: uhligit/ansible:2.1.0-3-g46e41b3
+
+  script:
+    - echo "BUILD"
+    - ansible all -m ping -i ./inventory 
+    - ansible-playbook ansible/skillbox_app.yml -i ./inventory -b -vv
+  tags: 
+    - vm_aws_docker_runner  
+  allow_failure: true 
+  
 test:
   stage: test
   image:
@@ -14,34 +51,5 @@ test:
     - vm_aws_docker_runner   
   allow_failure: true
 
-build:
-  stage: build
-  before_script:
-    - export ANSIBLE_CONFIG=./ansible.cfg
-    - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
-    - eval $(ssh-agent -s)
-    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
-    - mkdir -p ~/.ssh
-    - chmod 700 ~/.ssh
-    - ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
-    - chmod 644 ~/.ssh/known_hosts
 
-  #  - mkdir secret
-  #  - echo "$SSH_PRIVATE_KEY" > secret/ansible.key ## import ansible ssh key
-  #  - chmod 400 secret/ansible.key
-  #  - export ANSIBLE_HOST_KEY_CHECKING=False
-  image:
-    name: uhligit/ansible:2.1.0-3-g46e41b3
-    
-  script:
-    - echo "BUILD"
-    - ansible all -m ping -i ./inventory 
-    - ansible-playbook ansible/skillbox_app.yml -i ./inventory -b -vv
-  tags: 
-    - vm_aws_docker_runner  
-  allow_failure: true 
-  
 
-deploy:
-  stage: deploy
-  script: echo "DEPLOY"
