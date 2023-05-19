@@ -8,7 +8,8 @@ Docker Build:
   stage: build
   services:
   #  - docker:20.10.16-dind
-    - registry.hub.docker.com/library/docker:20.10.16-dind
+    name: registry.hub.docker.com/library/docker:20.10.16-dind
+    alias: docker  
   image: docker:20.10.16
   #tags:
   #  - dind
