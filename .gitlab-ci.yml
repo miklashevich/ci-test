@@ -6,13 +6,12 @@ stages:
 
 Docker Build:
   stage: build
+  image: docker:20.10.16
   services:
   #  - docker:20.10.16-dind
     - name: registry.hub.docker.com/library/docker:20.10.16-dind
       alias: docker  
-  image: docker:20.10.16
-  #tags:
-  #  - dind
+
   variables:
     DOCKER_HOST: tcp://docker:2375
     DOCKER_TLS_CERTDIR: ""
