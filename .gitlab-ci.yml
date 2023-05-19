@@ -13,7 +13,6 @@ Docker Build:
       alias: docker  
 
   script:
-  #  - docker build -t $CI_REGISTRY_IMAGE:${CI_COMMIT_SHORT_SHA} --file ${DOCKERFILE} .
     - docker login ${CI_REGISTRY} -u gitlab-ci-token -p ${CI_JOB_TOKEN} 
     - docker build -t ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}:${CI_COMMIT_REF_SLUG} . 
     - docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}:${CI_COMMIT_REF_SLUG}
