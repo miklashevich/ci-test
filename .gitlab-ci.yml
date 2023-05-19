@@ -18,7 +18,7 @@ Docker Build:
     DOCKERFILE: Dockerfile
   script:
   #  - docker build -t $CI_REGISTRY_IMAGE:${CI_COMMIT_SHORT_SHA} --file ${DOCKERFILE} .
-    - docker login registry.gitlab.com -u gitlab-ci-token -p ${CI_JOB_TOKEN} 
+    - docker login ${CI_REGISTRY} -u gitlab-ci-token -p ${CI_JOB_TOKEN} 
     - docker build -t 
     - docker push $CI_REGISTRY_IMAGE:${CI_COMMIT_SHORT_SHA}
 
