@@ -6,10 +6,10 @@ stages:
 
 Docker Build:
   stage: build
-  image: docker:20.10.16
+  image: docker:stable
   services:
   #  - docker:20.10.16-dind
-    - name: registry.hub.docker.com/library/docker:20.10.16-dind
+    - name: docker:dind
       alias: docker  
 
   script:
