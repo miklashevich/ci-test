@@ -7,7 +7,8 @@ stages:
 Docker Build:
   stage: build
   services:
-    - docker:20.10.16-dind
+  #  - docker:20.10.16-dind
+    - registry.hub.docker.com/library/docker:20.10.16-dind
   image: docker:20.10.16
   #tags:
   #  - dind
