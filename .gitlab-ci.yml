@@ -12,10 +12,6 @@ Docker Build:
     - name: registry.hub.docker.com/library/docker:20.10.16-dind
       alias: docker  
 
-  variables:
-    DOCKER_HOST: tcp://docker:2375
-    DOCKER_TLS_CERTDIR: ""
-    DOCKERFILE: Dockerfile
   script:
   #  - docker build -t $CI_REGISTRY_IMAGE:${CI_COMMIT_SHORT_SHA} --file ${DOCKERFILE} .
     - docker login ${CI_REGISTRY} -u gitlab-ci-token -p ${CI_JOB_TOKEN} 
