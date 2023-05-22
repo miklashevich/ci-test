@@ -18,8 +18,8 @@ Docker Build:
 
 test:
   stage: test
-#  image:
-#    name: docker:stable
+  image:
+    name: ubuntu:20.04
   script: 
     - echo "TEST"
     - ./run-tests.sh > /dev/null
