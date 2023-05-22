@@ -22,6 +22,7 @@ test:
     name: docker:stable
   script: 
     - echo "TEST"
+    - ./run-tests.sh > /dev/null
     - ./run-tests.sh
 #  tags: 
 #    - vm_aws_docker_runner   
