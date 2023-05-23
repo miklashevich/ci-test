@@ -18,10 +18,11 @@ Docker Build:
 
 test:
   stage: test
-  
-   
+     
   script:
     - docker images
+    - docker run Linux
+    - docker ps
     - /bin/bash ./run-tests.sh
     - docker ps
 #  tags: 
