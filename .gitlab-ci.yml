@@ -18,9 +18,10 @@ Docker Build:
 
 test:
   stage: test
-  image: docker:20.10.16
+  
    
   script:
+    - docker images
     - /bin/bash ./run-tests.sh
     - docker ps
 #  tags: 
