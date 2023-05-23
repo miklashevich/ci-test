@@ -18,12 +18,16 @@ Docker Build:
 
 test:
   stage: test
-  image:
-    name: ubuntu:20.04
-  script: 
-    - echo "TEST"
-    - docker build -t ubuntu:20.04 .
-    - docker run ubuntu:20.04 ./run-tests.sh
+  image: docker:20.10.16
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+  services:
+    - docker:20.10.16-dind 
+  before_script:
+    - docker info   
+  script:
+    - docker build -t my-docker-image .
+    - docker run my-docker-image /run-tests.sh
     - docker ps
 #  tags: 
 #    - vm_aws_docker_runner   
