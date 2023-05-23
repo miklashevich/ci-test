@@ -18,13 +18,12 @@ Docker Build:
 
 test:
   stage: test
-     
+  image:
+    name: ubuntu:20.04  
   script:
-    - docker images
-    - docker run Linux
-    - docker ps
-    - /bin/bash ./run-tests.sh
-    - docker ps
+    - docker run -it ubuntu:20.04 bash
+    - ./run-tests.sh
+
 #  tags: 
 #    - vm_aws_docker_runner   
   allow_failure: true
