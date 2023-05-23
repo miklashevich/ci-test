@@ -19,13 +19,9 @@ Docker Build:
 test:
   stage: test
   image: docker:20.10.16
-  variables:
-    DOCKER_TLS_CERTDIR: "/certs"
-  services:
-    - docker:20.10.16-dind   
+   
   script:
-    - docker build -t my-docker-image .
-    - docker run my-docker-image /run-tests.sh
+    - /bin/bash ./run-tests.sh
     - docker ps
 #  tags: 
 #    - vm_aws_docker_runner   
@@ -44,7 +40,7 @@ Deploy:
     - chmod 644 ~/.ssh/known_hosts
 
   script:
-    - echo "BUILD"
+    - echo "Deploy"
     - ansible all -m ping -i ./inventory 
     - ansible-playbook ansible/skillbox_app.yml -i ./inventory -b -vv
   tags: 
