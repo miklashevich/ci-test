@@ -22,10 +22,9 @@ test:
     name: ubuntu:20.04
   script: 
     - echo "TEST"
-    - docker run
+    - docker build -t ubuntu:20.04 .
+    - docker run ubuntu:20.04 ./run-tests.sh
     - docker ps
-    - ./run-tests.sh > /dev/null
-    - ./run-tests.sh
 #  tags: 
 #    - vm_aws_docker_runner   
   allow_failure: true
