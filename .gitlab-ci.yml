@@ -22,6 +22,7 @@ test:
     name: ubuntu:20.04
   script: 
     - echo "TEST"
+    - docker run
     - docker ps
     - ./run-tests.sh > /dev/null
     - ./run-tests.sh
