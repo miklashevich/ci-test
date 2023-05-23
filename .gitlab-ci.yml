@@ -21,8 +21,7 @@ test:
   image:
     name: ubuntu:20.04  
   script:
-    - docker run -it ubuntu:20.04 bash
-    - ./run-tests.sh
+    - /run-tests.sh
 
 #  tags: 
 #    - vm_aws_docker_runner   
