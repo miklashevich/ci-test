@@ -28,9 +28,8 @@ test:
 
   
   script:
-    - whereis bash | grep bash
-    - chmod u+x run-tests.sh
-    - bash ./run-tests.sh
+  # - chmod u+x run-tests.sh
+    - ./run-tests.sh
   
 
 #  tags: 
