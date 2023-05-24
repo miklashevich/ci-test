@@ -18,8 +18,8 @@ Docker Build:
 
 test:
   stage: test
-  #image:
-  #  name: ubuntu:20.04 
+  image:
+    name: gitlab/gitlab-ce:latest
 
   script:
     - whereis bash | grep bash
