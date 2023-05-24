@@ -23,7 +23,7 @@ test:
 
   script:
     - chmod u+x run-tests.sh
-    - ./run-tests.sh
+    - /bin/bash ./run-tests.sh
 
 #  tags: 
 #    - vm_aws_docker_runner   
