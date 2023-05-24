@@ -18,8 +18,8 @@ Docker Build:
 
 test:
   stage: test
-  image:
-    name: ubuntu:20.04 
+  #image:
+  #  name: ubuntu:20.04 
 
   script:
     - whereis bash | grep bash
