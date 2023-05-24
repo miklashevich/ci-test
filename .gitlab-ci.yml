@@ -29,8 +29,7 @@ test:
   
   script:
   # - chmod u+x run-tests.sh
-    - docker build -t my-docker-image .
-    - docker run my-docker-image /run-tests.sh
+    -  /run-tests.sh
   
 
 #  tags: 
