@@ -19,9 +19,10 @@ Docker Build:
 test:
   stage: test
   image:
-    name: docker:stable 
+    name: ubuntu:20.04 
 
   script:
+    -  whereis bash | grep bash
     - RUN apk update && apk add bash
     - chmod u+x run-tests.sh
     - /bin/bash ./run-tests.sh
