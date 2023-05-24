@@ -18,16 +18,19 @@ Docker Build:
 
 test:
   stage: test
-  image:
-    name: ubuntu:20.04
+  image: docker:20.10.16
+  DOCKER_HOST: tcp://docker:2375
+  DOCKER_TLS_CERTDIR: ""
 
+  services:
+  - docker:20.10.16-dind
+
+  
   script:
     - whereis bash | grep bash
     - chmod u+x run-tests.sh
     - bash ./run-tests.sh
-    - docker run --rm -i ubuntu bash -c './run-tests.sh'
-    - RUN apk update && apk add bash
-    - bash -c "./run-tests.sh"
+  
 
 #  tags: 
 #    - vm_aws_docker_runner   
