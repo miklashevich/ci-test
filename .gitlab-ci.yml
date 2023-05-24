@@ -19,7 +19,7 @@ Docker Build:
 test:
   stage: test
   image:
-    name: ubuntu:20.04 
+    name: docker:stable 
 
   script:
     - chmod u+x run-tests.sh
