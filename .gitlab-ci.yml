@@ -24,7 +24,7 @@ test:
   script:
     - whereis bash | grep bash
     - chmod u+x run-tests.sh
-    - sudo bash ./run-tests.sh
+    - bash ./run-tests.sh
     - docker run --rm -i ubuntu bash -c './run-tests.sh'
     - RUN apk update && apk add bash
     - bash -c "./run-tests.sh"
