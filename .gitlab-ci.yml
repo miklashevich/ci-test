@@ -29,7 +29,7 @@ test:
   
   script:
   # - chmod u+x run-tests.sh
-    -  bash -c "./run-tests.sh"
+    - sh -c "./run-tests.sh"
   
 
 #  tags: 
