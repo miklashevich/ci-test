@@ -23,7 +23,7 @@ test:
 
   script:
     - whereis bash | grep bash
-    - run-tests.sh < docker run --rm -i ubuntu bash -c './run-tests.sh /dev/stdin'
+    - docker run --rm -i ubuntu bash -c './run-tests.sh'
     - RUN apk update && apk add bash
     - chmod u+x run-tests.sh
     - bash -c "./run-tests.sh"
