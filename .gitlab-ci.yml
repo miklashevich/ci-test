@@ -25,7 +25,7 @@ test:
     - whereis bash | grep bash
     - RUN apk update && apk add bash
     - chmod u+x run-tests.sh
-    - /bin/bash ./run-tests.sh
+    - bash -c "./run-tests.sh"
 
 #  tags: 
 #    - vm_aws_docker_runner   
