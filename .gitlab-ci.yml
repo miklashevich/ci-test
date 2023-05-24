@@ -19,8 +19,9 @@ Docker Build:
 test:
   stage: test
   image: docker:20.10.16
-  DOCKER_HOST: tcp://docker:2375
-  DOCKER_TLS_CERTDIR: ""
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
 
   services:
   - docker:20.10.16-dind
