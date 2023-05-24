@@ -19,8 +19,10 @@ Docker Build:
 test:
   stage: test
   image:
-    name: ubuntu:20.04  
+    name: ubuntu:20.04 
+
   script:
+    - chmod u+x run-tests.sh
     - ./run-tests.sh
 
 #  tags: 
