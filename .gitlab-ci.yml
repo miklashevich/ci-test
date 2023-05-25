@@ -23,17 +23,18 @@ Docker Build:
 
 
 test:
-  services:
-    - docker:dind
-  image: docker:20.10.16
   stage: test
-  script: 
-    - docker run golang:1.16.6-alpine3.14 -v /var/run/docker.sock:/var/run/docker.sock
-    - ./run-tests.sh
+  image: docker:20.10.16
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+  services:
+  - docker:20.10.16-dind
+
+  script:
+  #  - docker run -v $(pwd):/tests golang:1.16.6-alpine3.14 /tests/scripts/test_in_docker.sh
+    - docker run --rm -v $(pwd)/run-tests.sh:/run-tests.sh golang:1.16.6-alpine3.14 bash /run-tests.sh
     
-
-  
-
 #  tags: 
 #    - vm_aws_docker_runner   
   allow_failure: true
