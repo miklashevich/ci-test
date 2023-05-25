@@ -36,7 +36,6 @@ test:
 
   script:
   # - chmod u+x run-tests.sh
-    - whereis test_in_docker.sh
     - -v $(pwd):/tests
     - /tests/scripts/test_in_docker.sh
     - ./run-tests.sh
