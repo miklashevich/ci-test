@@ -25,7 +25,7 @@ Docker Build:
 test:
   services:
     - docker:dind
-  image: golang:1.16.6-alpine3.14
+  image: docker:20.10.16
   stage: test
   script: 
     - docker run golang:1.16.6-alpine3.14 -v /var/run/docker.sock:/var/run/docker.sock
