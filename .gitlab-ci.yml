@@ -39,7 +39,6 @@ test:
 Deploy:
   stage: deploy 
   needs:
-    - build
     - test 
   rules:
     - if: $CI_COMMIT_BRANCH == "uat"  
