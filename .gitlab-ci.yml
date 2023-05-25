@@ -33,7 +33,8 @@ test:
 
   script:
   #  - docker run -v $(pwd):/tests golang:1.16.6-alpine3.14 /tests/scripts/test_in_docker.sh
-    - docker run --rm -v $(pwd)/run-tests.sh:/run-tests.sh golang:1.16.6-alpine3.14 bash /run-tests.sh
+  #  - docker run --rm -v $(pwd)/run-tests.sh:/run-tests.sh golang:1.16.6-alpine3.14 bash /run-tests.sh
+    - docker run --rm -v /usr/bin:/usr/bin --privileged -v $(pwd)/mybashscript.sh:/mybashscript.sh ubuntu bash /mybashscript.sh
     
 #  tags: 
 #    - vm_aws_docker_runner   
