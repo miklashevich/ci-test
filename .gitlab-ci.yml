@@ -36,9 +36,9 @@ test:
 
   script:
   # - chmod u+x run-tests.sh
-    - -v $(pwd):/tests
+    - docker ps
     - /tests/scripts/test_in_docker.sh
-    - ./run-tests.sh
+
   
 
 #  tags: 
