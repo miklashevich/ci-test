@@ -36,8 +36,11 @@ test:
 
   script:
   # - chmod u+x run-tests.sh
-    - docker ps
-    - /tests/scripts/test_in_docker.sh
+    - docker run \
+    -v $(pwd):/tests \
+    golang:1.16.6-alpine3.14 \
+    /tests/scripts/test_in_docker.sh
+    
 
   
 
