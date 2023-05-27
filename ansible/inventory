@@ -6,5 +6,5 @@ gitlab_runner_server_1 ansible_host=18.198.65.74 ansible_user=ubuntu ansible_ssh
 >>>>>>> ece610a3012652e0f4adf4983e42adc7142693f7
 
 [app_server_in_ASG]
-app_server_1 ansible_host=35.156.150.218 ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/id_rsa
+app_server_1 ansible_host=3.70.232.38 ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/id_rsa
 
