@@ -54,6 +54,9 @@ Deploy:
     - ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
 
+  image:
+    name: uhligit/ansible:2.1.0-3-g46e41b3
+
   script:
     - echo "Deploy"
     - ansible all -m ping -i ./inventory 
