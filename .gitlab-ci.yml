@@ -1,21 +1,49 @@
 stages:
-    - test
     - build
+    - test
     - deploy
+
+
+Docker Build:
+  stage: build
+  image: docker:20.10.16
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+
+  services:
+  - docker:20.10.16-dind
+
+  script:
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN ${CI_REGISTRY}
+    - docker build --cache-from $CI_REGISTRY_IMAGE:latest -t ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}:${CI_COMMIT_REF_SLUG} . 
+    - docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}:${CI_COMMIT_REF_SLUG}
+    - docker tag ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}:${CI_COMMIT_REF_SLUG} ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}:latest
+    - docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}:latest
+  tags: 
+    - vm_aws_docker_runner  
+
 
 test:
   stage: test
-  image:
-    name: ubuntu:focal
-  script: 
-    - echo "TEST"
-    - ./run-tests.sh
+  image: docker:20.10.16
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+  services:
+  - docker:20.10.16-dind
+  script:
+    - docker run -v $(pwd):/tests golang:1.16.6-alpine3.14 /tests/scripts/test_in_docker.sh
+    
   tags: 
-    - vm_aws_docker_runner   
-  allow_failure: true
+    - vm_aws_docker_runner    
 
-build:
-  stage: build
+Deploy:
+  stage: deploy 
+  needs:
+    - test 
+  rules:
+    - if: $CI_COMMIT_BRANCH == "uat"  
   before_script:
     - export ANSIBLE_CONFIG=./ansible.cfg
     - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
@@ -26,22 +54,16 @@ build:
     - ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
 
-  #  - mkdir secret
-  #  - echo "$SSH_PRIVATE_KEY" > secret/ansible.key ## import ansible ssh key
-  #  - chmod 400 secret/ansible.key
-  #  - export ANSIBLE_HOST_KEY_CHECKING=False
   image:
     name: uhligit/ansible:2.1.0-3-g46e41b3
-    
+
   script:
-    - echo "BUILD"
+    - echo "Deploy"
     - ansible all -m ping -i ./inventory 
     - ansible-playbook ansible/skillbox_app.yml -i ./inventory -b -vv
-  tags: 
-    - vm_aws_docker_runner  
-  allow_failure: true 
+  #tags: 
+  #  - vm_aws_docker_runner  
   
 
-deploy:
-  stage: deploy
-  script: echo "DEPLOY"
+
+
