@@ -38,7 +38,7 @@ test:
   tags: 
     - vm_aws_docker_runner    
 
-Deploy:
+Deploy_to_test_env:
   stage: deploy 
   needs:
     - test 
@@ -61,9 +61,32 @@ Deploy:
     - echo "Deploy"
     - ansible all -m ping -i ./inventory 
     - ansible-playbook ansible/skillbox_app.yml -i ./inventory -b -vv
-  #tags: 
-  #  - vm_aws_docker_runner  
+  tags: 
+    - vm_aws_docker_runner  
   
+Deploy_to_prod:
+  stage: deploy 
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"  
+      when: manual
+  before_script:
+    - export ANSIBLE_CONFIG=./ansible.cfg
+    - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
 
+  image:
+    name: uhligit/ansible:2.1.0-3-g46e41b3
+
+  script:
+    - echo "Deploy"
+    - ansible all -m ping -i ./inventory 
+    - ansible-playbook ansible/skillbox_app.yml -i ./inventory -b -vv
+  tags: 
+    - vm_aws_docker_runner  
 
 
