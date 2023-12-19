@@ -4,6 +4,7 @@
 # These are the setting you need to register a runner.
 gitlab_runner_registration_token: "GR1348941zVsDbRfiWZ64e_TrVN36"
 
+
 # The name as shown in the GitLab webinterface.
 gitlab_runner_name: "{{ ansible_fqdn }}"
 
