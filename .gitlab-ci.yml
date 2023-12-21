@@ -58,7 +58,7 @@ Deploy_to_test_env:
 
   script:
     - echo "Deploy"
-    - ansible-inventory --graph --yaml -i /home/andrew/diploma/infra_diploma/test_env/ansible/aws_ec2.yml
+    - ansible-inventory --graph 
     - ansible all -m ping -i ./inventory 
     - ansible-playbook ansible/skillbox_app.yml -i ./inventory -b -vv
    
