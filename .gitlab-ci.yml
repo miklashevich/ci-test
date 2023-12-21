@@ -6,13 +6,13 @@ stages:
 
 Docker Build:
   stage: build
-  image: docker:20.10.16
+  image: docker:24.0.5
   variables:
     DOCKER_HOST: tcp://docker:2375
     DOCKER_TLS_CERTDIR: ""
 
   services:
-  - docker:20.10.16-dind
+  - docker:24.0.5-dind
 
   script:
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN ${CI_REGISTRY}
@@ -20,25 +20,24 @@ Docker Build:
     - docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}:${CI_COMMIT_REF_SLUG}
     - docker tag ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}:${CI_COMMIT_REF_SLUG} ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}:latest
     - docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}:latest
-  tags: 
-    - vm_aws_docker_runner  
+  
 
 
 test:
   stage: test
-  image: docker:20.10.16
+  image: docker:24.0.5
   variables:
     DOCKER_HOST: tcp://docker:2375
     DOCKER_TLS_CERTDIR: ""
   services:
-  - docker:20.10.16-dind
+  - docker:24.0.5-dind
   script:
     - docker run -v $(pwd):/tests golang:1.16.6-alpine3.14 /tests/scripts/test_in_docker.sh
     
   tags: 
-    - vm_aws_docker_runner    
+    - hp_runner  
 
-Deploy:
+Deploy_to_test_env:
   stage: deploy 
   needs:
     - test 
@@ -59,11 +58,39 @@ Deploy:
 
   script:
     - echo "Deploy"
+    - ansible-inventory --graph --yaml -i /home/andrew/diploma/infra_diploma/test_env/ansible/aws_ec2.yml
     - ansible all -m ping -i ./inventory 
     - ansible-playbook ansible/skillbox_app.yml -i ./inventory -b -vv
-  #tags: 
-  #  - vm_aws_docker_runner  
+  tags: 
+    - vm_aws_docker_runner  
   
+Deploy_to_prod:
+  stage: deploy 
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"  
+      when: manual
+  before_script:
+    - export ANSIBLE_CONFIG=./ansible.cfg
+    - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+
+  image:
+    name: uhligit/ansible:2.1.0-3-g46e41b3
+
+  script:
+    - echo "Deploy"
+    - ansible all -m ping -i ./inventory 
+    - ansible-playbook ansible/skillbox_app.yml -i ./inventory -b -vv
+  tags: 
+    - vm_aws_docker_runner  
+
+
+
 
 
 
