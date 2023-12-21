@@ -22,6 +22,7 @@ Docker Build:
     - docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}:latest
   tags: 
     - vm_aws_docker_runner  
+    - hp_runner
 
 
 test:
@@ -36,7 +37,8 @@ test:
     - docker run -v $(pwd):/tests golang:1.16.6-alpine3.14 /tests/scripts/test_in_docker.sh
     
   tags: 
-    - vm_aws_docker_runner    
+    - vm_aws_docker_runner 
+    - hp_runner  
 
 Deploy_to_test_env:
   stage: deploy 
