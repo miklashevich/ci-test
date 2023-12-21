@@ -6,13 +6,13 @@ stages:
 
 Docker Build:
   stage: build
-  image: docker:20.10.16
+  image: docker:24.0.5
   variables:
     DOCKER_HOST: tcp://docker:2375
     DOCKER_TLS_CERTDIR: ""
 
   services:
-  - docker:20.10.16-dind
+  - docker:24.0.5-dind
 
   script:
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN ${CI_REGISTRY}
