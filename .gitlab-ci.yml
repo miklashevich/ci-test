@@ -25,12 +25,12 @@ Docker Build:
 
 test:
   stage: test
-  image: docker:20.10.16
+  image: docker:24.0.5
   variables:
     DOCKER_HOST: tcp://docker:2375
     DOCKER_TLS_CERTDIR: ""
   services:
-  - docker:20.10.16-dind
+  - docker:24.0.5-dind
   script:
     - docker run -v $(pwd):/tests golang:1.16.6-alpine3.14 /tests/scripts/test_in_docker.sh
     
