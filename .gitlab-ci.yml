@@ -59,7 +59,7 @@ Deploy_to_test_env:
 
   script:
     - echo "Deploy to test env"
-    - ansible-inventory --graph -i ./aws_ec2.yml
+    - ansible-inventory --graph -i ansible/aws_ec2.yml
     - ansible-playbook ansible/skillbox_app.yml -i ./aws_ec2.yml
   tags: 
     - hp_runner   
