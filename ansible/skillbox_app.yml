@@ -1,5 +1,6 @@
 ---
-- hosts: app_server_in_ASG
+- hosts: 
+    - _App_Server_in_ASG
   become: true
   become_user: root
   vars:
@@ -10,11 +11,6 @@
   tasks:
     - name: "ping"
       ping:
-
-    - name: remove nginx
-      apt:
-        name: nginx
-        state: absent  
 
     - name: "Create app folder"
       file:
