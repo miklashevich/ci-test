@@ -21,7 +21,7 @@ Docker Build:
     - docker tag ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}:${CI_COMMIT_REF_SLUG} ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}:latest
     - docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}:latest
   tags: 
-    - vm_aws_docker_runner  
+    - hp_runner 
 
 
 test:
@@ -36,7 +36,7 @@ test:
     - docker run -v $(pwd):/tests golang:1.16.6-alpine3.14 /tests/scripts/test_in_docker.sh
     
   tags: 
-    - vm_aws_docker_runner    
+    - hp_runner     
 
 Deploy_to_test_env:
   stage: deploy 
@@ -58,11 +58,11 @@ Deploy_to_test_env:
     name: uhligit/ansible:2.1.0-3-g46e41b3
 
   script:
-    - echo "Deploy"
-    - ansible all -m ping -i ./inventory 
-    - ansible-playbook ansible/skillbox_app.yml -i ./inventory -b -vv
+    - echo "Deploy to test env"
+    - ansible-inventory --graph -i ./aws_ec2.yml
+    - ansible-playbook ansible/skillbox_app.yml -i ./aws_ec2.yml
   tags: 
-    - vm_aws_docker_runner  
+    - hp_runner   
   
 Deploy_to_prod:
   stage: deploy 
@@ -83,10 +83,10 @@ Deploy_to_prod:
     name: uhligit/ansible:2.1.0-3-g46e41b3
 
   script:
-    - echo "Deploy"
+    - echo "Deploy to prod env"
     - ansible all -m ping -i ./inventory 
-    - ansible-playbook ansible/skillbox_app.yml -i ./inventory -b -vv
+    - ansible-playbook ansible/skillbox_app.yml 
   tags: 
-    - vm_aws_docker_runner  
+    - hp_runner   
 
 
