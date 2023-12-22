@@ -7,3 +7,4 @@ filters:
   instance-state-name: running
 compose:
 ansible_host: public_ip_address
+
