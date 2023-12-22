@@ -53,7 +53,7 @@ Deploy_to_test_env:
     - chmod 700 ~/.ssh
     - ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
-    - apt-get install -y awscli python3-pip
+    - apk add --no-cache aws-cli python3 py3-pip
     - pip3 install boto3 botocore
 
   image:
