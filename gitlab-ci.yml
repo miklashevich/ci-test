@@ -53,14 +53,18 @@ Deploy_to_test_env:
     - chmod 700 ~/.ssh
     - ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
+    - apk add --no-cache aws-cli python3 py3-pip
+    - pip3 install boto3 botocore
 
   image:
     name: uhligit/ansible:2.1.0-3-g46e41b3
 
   script:
     - echo "Deploy to test env"
-    - ansible-inventory --graph -i ./aws_ec2.yml
-    - ansible-playbook ansible/skillbox_app.yml -i ./aws_ec2.yml
+    - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+    - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+    - ansible-inventory --graph 
+    - ansible-playbook ansible/skillbox_app.yml 
   tags: 
     - hp_runner   
   
