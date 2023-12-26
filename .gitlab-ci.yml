@@ -63,7 +63,7 @@ Deploy_to_test_env:
     - echo "Deploy to test env"
     - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
     - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
-    - ansible-inventory --graph 
+    - ansible-inventory --graph -i ansible/service.aws_ec2.yml 
     - ansible-playbook ansible/skillbox_app.yml 
   tags: 
     - hp_runner   
