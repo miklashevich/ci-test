@@ -40,13 +40,16 @@
     - name: "Set initial version if not found"
       set_fact:
         app_version: "v1"
+      ignore_errors: yes  
       when: current_version.rc != 0 and "'main' in CI_COMMIT_REF_NAME"
 
     - name: "Update version for main branch"
       set_fact:
         app_version: "v{{ app_version | int + 1 }}"
+      ignore_errors: yes  
       when: "'main' in CI_COMMIT_REF_NAME"
 
     - name: "Store updated version in Consul"
       command: "consul kv put {{ version_key }} {{ app_version }}"
+      ignore_errors: yes
       when: "'main' in CI_COMMIT_REF_NAME"
