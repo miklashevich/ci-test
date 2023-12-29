@@ -45,7 +45,7 @@
 
     - name: "Update version for main branch"
       set_fact:
-        app_version: "v{{ app_version | int + 1 }}"
+        app_version: "v{{ current_version | int + 1 }}"
       ignore_errors: yes  
       when: "'main' in ci_commit_branch"
 
