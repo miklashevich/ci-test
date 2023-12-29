@@ -3,6 +3,8 @@ stages:
     - test
     - deploy
 
+variables:
+  DOCKER_IMAGE_RELEASE_VERSION: "v1"  # Initial release 
 
 Docker Build:
   stage: build
@@ -15,11 +17,31 @@ Docker Build:
   - docker:24.0.5-dind
 
   script:
+    # Increment the release version for main branch
+    - >
+      if [ "$CI_COMMIT_BRANCH" = "main" ]; then
+        export DOCKER_IMAGE_RELEASE_VERSION="v$(($(echo $DOCKER_IMAGE_RELEASE_VERSION | tr -d 'v') + 1))"
+      fi
+
+    # Build Docker image with the updated release version tag
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN ${CI_REGISTRY}
-    - docker build --cache-from $CI_REGISTRY_IMAGE:latest -t ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}:${CI_COMMIT_REF_SLUG} . 
-    - docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}:${CI_COMMIT_REF_SLUG}
-    - docker tag ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}:${CI_COMMIT_REF_SLUG} ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}:latest
+    - docker build --cache-from $CI_REGISTRY_IMAGE:latest -t ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}:${DOCKER_IMAGE_RELEASE_VERSION} .
+    - docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}:${DOCKER_IMAGE_RELEASE_VERSION}
+
+    # Tag image with branch name for traceability
+    - docker tag ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}:${DOCKER_IMAGE_RELEASE_VERSION} ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}:${CI_COMMIT_REF_NAME}
+    - docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}:${CI_COMMIT_REF_NAME}
+
+    - docker tag ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}:${CI_COMMIT_REF_NAME} ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}:latest
     - docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_PROJECT_NAME}:latest
+
+
+
+
+
+
+
+
   tags: 
     - hp_runner 
 
@@ -46,7 +68,7 @@ Deploy_to_test_env:
     - if: $CI_COMMIT_BRANCH == "uat"  
   before_script:
     - export ANSIBLE_CONFIG=./ansible.cfg
-    - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
+    - 'command -v ssh-agent >/dev/null || ( apk update && apk add openssh-client )'
     - eval $(ssh-agent -s)
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
     - mkdir -p ~/.ssh
@@ -63,7 +85,7 @@ Deploy_to_test_env:
     - echo "Deploy to test env"
     - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
     - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
-    - ansible-inventory --graph -i ansible/service.aws_ec2.yml 
+    - ansible-inventory --graph -i ansible/service.aws_ec2.yml
     - ansible-playbook ansible/skillbox_app.yml -i ansible/service.aws_ec2.yml
   tags: 
     - hp_runner   
@@ -75,21 +97,26 @@ Deploy_to_prod:
       when: manual
   before_script:
     - export ANSIBLE_CONFIG=./ansible.cfg
-    - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
+    - 'command -v ssh-agent >/dev/null || ( apk update && apk add openssh-client )'
     - eval $(ssh-agent -s)
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
     - ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
+    - apk add --no-cache aws-cli python3 py3-pip
+    - pip3 install boto3 botocore
+
 
   image:
     name: uhligit/ansible:2.1.0-3-g46e41b3
 
   script:
     - echo "Deploy to prod env"
-    - ansible all -m ping -i ./inventory 
-    - ansible-playbook ansible/skillbox_app.yml 
+    - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+    - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+    - ansible-inventory --graph -i ansible/service.aws_ec2.yml
+    - ansible-playbook ansible/skillbox_app.yml -i ansible/service.aws_ec2.yml
   tags: 
     - hp_runner   
 

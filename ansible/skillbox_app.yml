@@ -1,41 +1,52 @@
 ---
-- hosts: 
+- hosts:
     - _App_Server_in_ASG
   become: true
   become_user: root
   vars:
     repository: https://gitlab.com/miklashevich.a/service.git
     app_path: diploma
-
+    version_key: "app/release_version"
 
   tasks:
-    - name: "ping"
-      ping:
-
-    - name: "Create app folder"
-      file:
-        dest="{{ app_path }}"
-        state=directory
-
     - name: "Clone the repository"
-      git: 
+      git:
         repo: "{{ repository }}"
-        dest: "{{ app_path }}"      
+        dest: "{{ app_path }}"
 
-    - name: Copy unit file to app_server
+    - name: "Copy unit file to app_server"
       template:
         src: skillbox-app.service.j2
         dest: /etc/systemd/system/skillbox-app.service
         mode: 0644
 
-    - name: Start a service with systemd
+    - name: "Start a service with systemd"
       systemd:
         daemon_reload: true
         name: skillbox-app.service
         state: started
 
-    - name: Enable app service
+    - name: "Enable app service"
       systemd:
         name: skillbox-app.service
-        state: started 
+        state: started
 
+    - name: "Load current version from Consul"
+      command: "consul kv get {{ version_key }}"
+      register: current_version
+      ignore_errors: yes
+      when: "'main' in CI_COMMIT_REF_NAME"
+
+    - name: "Set initial version if not found"
+      set_fact:
+        app_version: "v1"
+      when: current_version.rc != 0 and "'main' in CI_COMMIT_REF_NAME"
+
+    - name: "Update version for main branch"
+      set_fact:
+        app_version: "v{{ app_version | int + 1 }}"
+      when: "'main' in CI_COMMIT_REF_NAME"
+
+    - name: "Store updated version in Consul"
+      command: "consul kv put {{ version_key }} {{ app_version }}"
+      when: "'main' in CI_COMMIT_REF_NAME"
