@@ -30,7 +30,6 @@ Docker Build:
     - docker build --cache-from $CI_REGISTRY_IMAGE:latest -t ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_COMMIT_BRANCH}:${DOCKER_IMAGE_RELEASE_VERSION} .
     - docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_COMMIT_BRANCH}:${DOCKER_IMAGE_RELEASE_VERSION}
   
-  
   tags: 
     - hp_runner 
 
