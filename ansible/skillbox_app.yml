@@ -34,5 +34,4 @@
 
     - name: "Store version in Consul"
       command: "consul kv put {{ version_key }} {{ release_version_value }}"
-      ignore_errors: yes
       when: "'main' in ci_commit_branch"
