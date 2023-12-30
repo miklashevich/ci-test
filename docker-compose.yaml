@@ -2,10 +2,9 @@ version: '3.1'
 
 services:
   app:
-    image: registry.gitlab.com/miklashevich.a/service/${CI_COMMIT_BRANCH}:${RELEASE_VERSION}
+    image: registry.gitlab.com/miklashevich.a/service/${CI_COMMIT_BRANCH}:${DOCKER_IMAGE_RELEASE_VERSION}
     container_name: app
     restart: always
     ports:
       - '8080:8080'
-    environment:
-      - RELEASE_VERSION=${DOCKER_IMAGE_TAG}
+
