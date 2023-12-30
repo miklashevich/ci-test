@@ -8,6 +8,7 @@
     app_path: diploma
     version_key: "app/release_version"
 
+
   tasks:
     - name: "Clone the repository"
       git:
@@ -31,25 +32,7 @@
         name: skillbox-app.service
         state: started
 
-    - name: "Load current version from Consul"
-      command: "consul kv get {{ version_key }}"
-      register: current_version
-      ignore_errors: yes
-      when: "'main' in ci_commit_branch"
-
-    - name: "Set initial version if not found"
-      set_fact:
-        app_version: "v1"
-      ignore_errors: yes  
-      when: current_version is not defined or current_version | length == 0 and 'main' in ci_commit_branch
-
-    - name: "Update version for main branch"
-      set_fact:
-        app_version: "v{{ current_version | int + 1 }}"
-      ignore_errors: yes  
-      when: "'main' in ci_commit_branch"
-
-    - name: "Store updated version in Consul"
-      command: "consul kv put {{ version_key }} {{ app_version }}"
+    - name: "Store version in Consul"
+      command: "consul kv put {{ version_key }} {{ release_version_value }}"
       ignore_errors: yes
       when: "'main' in ci_commit_branch"
