@@ -21,10 +21,10 @@ Docker Build:
     - |
       if [ "$CI_COMMIT_BRANCH" = "main" ]; then
         export DOCKER_IMAGE_RELEASE_VERSION="v$((DOCKER_IMAGE_RELEASE_VERSION + 1))"
-        echo "Updated DOCKER_IMAGE_RELEASE_VERSION:" $DOCKER_IMAGE_RELEASE_VERSION
+        
       else
         export DOCKER_IMAGE_RELEASE_VERSION="v1"
-        echo "DOCKER_IMAGE_RELEASE_VERSION reset to:" $DOCKER_IMAGE_RELEASE_VERSION"
+      
       fi
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN ${CI_REGISTRY}
     - docker build --cache-from $CI_REGISTRY_IMAGE:latest -t ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_COMMIT_BRANCH}:${DOCKER_IMAGE_RELEASE_VERSION} .
