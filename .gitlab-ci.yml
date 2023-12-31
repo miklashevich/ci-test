@@ -16,19 +16,20 @@ Docker Build:
   services:
   - docker:24.0.5-dind 
 
+
+
   script:
-    - |
+    - >
       if [ "$CI_COMMIT_BRANCH" = "main" ]; then
         export DOCKER_IMAGE_RELEASE_VERSION="v$(($(echo $DOCKER_IMAGE_RELEASE_VERSION | tr -d 'v') + 1))"
+        export DOCKER_IMAGE_TAG="${DOCKER_IMAGE_RELEASE_VERSION}"
       else
-        export DOCKER_IMAGE_RELEASE_VERSION="latest"
-      
+        export DOCKER_IMAGE_TAG="latest"
       fi
-    - echo "Updated DOCKER_IMAGE_RELEASE_VERSION:" $DOCKER_IMAGE_RELEASE_VERSION 
+    - echo "Updated DOCKER_IMAGE_RELEASE_VERSION:" $DOCKER_IMAGE_RELEASE_VERSION  
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN ${CI_REGISTRY}
-    - docker build --cache-from $CI_REGISTRY_IMAGE:latest -t ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_COMMIT_BRANCH}:${DOCKER_IMAGE_RELEASE_VERSION} .
-    - docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_COMMIT_BRANCH}:${DOCKER_IMAGE_RELEASE_VERSION}
-
+    - docker build --cache-from $CI_REGISTRY_IMAGE:latest -t ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_COMMIT_BRANCH}:${DOCKER_IMAGE_TAG} .
+    - docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_COMMIT_BRANCH}:${DOCKER_IMAGE_TAG}
 
 
   tags: 
