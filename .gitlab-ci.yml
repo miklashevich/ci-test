@@ -12,32 +12,23 @@ Docker Build:
   variables:
     DOCKER_HOST: tcp://docker:2375
     DOCKER_TLS_CERTDIR: ""
+    IMAGE_NAME: "skillbox_app"
 
   services:
   - docker:24.0.5-dind 
-    
+
   script:
-    - >
-      if [ "$CI_COMMIT_BRANCH" = "main" ]; then
-        CURRENT_VERSION=${DOCKER_IMAGE_RELEASE_VERSION:1}
-        NEW_VERSION=$((CURRENT_VERSION + 1))
-        export DOCKER_IMAGE_RELEASE_VERSION="v$NEW_VERSION"
-        echo "DOCKER_IMAGE_RELEASE_VERSION:" $DOCKER_IMAGE_RELEASE_VERSION
-      fi
-      
-    - >
-      if [ "$CI_COMMIT_BRANCH" = "main" ]; then
-        export DOCKER_IMAGE_TAG="${DOCKER_IMAGE_RELEASE_VERSION}"
-      else
-        export DOCKER_IMAGE_TAG="latest"
-      fi
-
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN ${CI_REGISTRY}
-    - docker build -t ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_COMMIT_BRANCH}:${DOCKER_IMAGE_TAG} .
-    - docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_COMMIT_BRANCH}:${DOCKER_IMAGE_TAG}
-    - docker tag ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_COMMIT_BRANCH}:${DOCKER_IMAGE_TAG} ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_COMMIT_BRANCH}:latest
-    - docker push $CI_REGISTRY/$CI_PROJECT_PATH/$CI_COMMIT_BRANCH:latest  
+    - docker build --cache-from $CI_REGISTRY_IMAGE:latest -t $CI_REGISTRY/$CI_PROJECT_PATH/$CI_COMMIT_BRANCH/$IMAGE_NAME:$CI_COMMIT_SHORT_SHA .
 
+    - IMAGE_ID=$(docker images | grep $CI_REGISTRY/$CI_PROJECT_PATH/$CI_COMMIT_BRANCH\/$IMAGE_NAME | awk '{print $3}')
+    - docker tag $IMAGE_ID $CI_REGISTRY/$CI_PROJECT_PATH/$CI_COMMIT_BRANCH/$IMAGE_NAME:latest
+    - docker push $CI_REGISTRY/$CI_PROJECT_PATH/$CI_COMMIT_BRANCH/$IMAGE_NAME:$CI_COMMIT_SHORT_SHA
+    - docker push $CI_REGISTRY/$CI_PROJECT_PATH/$CI_COMMIT_BRANCH/$IMAGE_NAME:latest
+    
+
+
+ 
   tags: 
     - hp_runner 
 
