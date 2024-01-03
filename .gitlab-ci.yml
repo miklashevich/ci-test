@@ -3,8 +3,8 @@ stages:
     - test
     - deploy
 
-#variables:
-  #DOCKER_IMAGE_RELEASE_VERSION: "v1"  # Initial release 
+variables:
+  DOCKER_IMAGE_RELEASE_VERSION: "v1"  # Initial release 
 
 Docker Build:
   stage: build
@@ -17,17 +17,19 @@ Docker Build:
   services:
   - docker:24.0.5-dind 
     
-
-
   script:
-    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN ${CI_REGISTRY}
-    - docker build --cache-from $CI_REGISTRY_IMAGE:latest -t $CI_REGISTRY/$CI_PROJECT_PATH/$CI_COMMIT_BRANCH/$IMAGE_NAME:$CI_COMMIT_SHORT_SHA .
-
-    - IMAGE_ID=$(docker images | grep $CI_REGISTRY/$CI_PROJECT_PATH/$CI_COMMIT_BRANCH\/$IMAGE_NAME | awk '{print $3}')
-    - docker tag $IMAGE_ID $CI_REGISTRY/$CI_PROJECT_PATH/$CI_COMMIT_BRANCH/$IMAGE_NAME:latest
-    - docker push $CI_REGISTRY/$CI_PROJECT_PATH/$CI_COMMIT_BRANCH/$IMAGE_NAME:$CI_COMMIT_SHORT_SHA
-    - docker push $CI_REGISTRY/$CI_PROJECT_PATH/$CI_COMMIT_BRANCH/$IMAGE_NAME:latest
-    
+  - >
+    if [ "$CI_COMMIT_BRANCH" = "main" ]; then
+      export DOCKER_IMAGE_RELEASE_VERSION="v$(($(echo $DOCKER_IMAGE_RELEASE_VERSION | tr -d 'v') + 1))"
+    else
+      export DOCKER_IMAGE_TAG="latest"
+    fi
+  - echo "DOCKER_IMAGE_RELEASE_VERSION:" $DOCKER_IMAGE_RELEASE_VERSION 
+  - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN ${CI_REGISTRY}
+  - docker build -t ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_COMMIT_BRANCH}:${DOCKER_IMAGE_TAG} .
+  - docker push ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_COMMIT_BRANCH}:${DOCKER_IMAGE_TAG}
+  - docker tag ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_COMMIT_BRANCH}:${DOCKER_IMAGE_TAG} ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_COMMIT_BRANCH}:latest
+  - docker push $CI_REGISTRY/$CI_PROJECT_PATH/$CI_COMMIT_BRANCH:latest  
 
 
   tags: 
