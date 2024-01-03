@@ -19,7 +19,7 @@ Docker Build:
   script:
   - >
     if [ "$CI_COMMIT_BRANCH" = "main" ]; then
-      export DOCKER_IMAGE_RELEASE_VERSION="v$(($(echo $DOCKER_IMAGE_RELEASE_VERSION | tr -d 'v') + 1))"
+      export DOCKER_IMAGE_RELEASE_VERSION="v$(((${DOCKER_IMAGE_RELEASE_VERSION:1} + 1))"
       export DOCKER_IMAGE_TAG=$DOCKER_IMAGE_RELEASE_VERSION
     else
       export DOCKER_IMAGE_TAG="latest"
