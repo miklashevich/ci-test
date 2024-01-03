@@ -3,8 +3,6 @@ stages:
     - test
     - deploy
 
-variables:
-  DOCKER_IMAGE_RELEASE_VERSION: "$CI_COMMIT_BRANCH"
 
 Docker Build:
   stage: build
@@ -105,7 +103,7 @@ Deploy_to_prod:
     - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
     - ansible-inventory --graph -i ansible/service.aws_ec2.yml
     - ansible-playbook ansible/skillbox_app.yml -i ansible/service.aws_ec2.yml --extra-vars "ci_commit_branch=$CI_COMMIT_BRANCH"
-    - ansible-playbook ansible/skillbox_app.yml -i ansible/service.aws_ec2.yml --extra-vars "ci_commit_branch=$CI_COMMIT_BRANCH release_version=$DOCKER_IMAGE_RELEASE_VERSION"
+    - ansible-playbook ansible/skillbox_app.yml -i ansible/service.aws_ec2.yml --extra-vars "ci_commit_branch=$CI_COMMIT_BRANCH release_version=$CI_COMMIT_SHORT_SHA"
   tags: 
     - hp_runner   
 
