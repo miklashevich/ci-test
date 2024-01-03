@@ -3,8 +3,8 @@ stages:
     - test
     - deploy
 
-variables:
-  DOCKER_IMAGE_RELEASE_VERSION: "v1"  # Initial release 
+#variables:
+  #DOCKER_IMAGE_RELEASE_VERSION: "v1"  # Initial release 
 
 Docker Build:
   stage: build
