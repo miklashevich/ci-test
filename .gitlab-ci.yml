@@ -16,7 +16,6 @@ Docker Build:
   services:
   - docker:24.0.5-dind 
     
-
   script:
     - >
       if [ "$CI_COMMIT_BRANCH" = "main" ]; then
