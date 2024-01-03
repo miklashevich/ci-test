@@ -35,7 +35,6 @@ Docker Build:
     - docker tag ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_COMMIT_BRANCH}:${DOCKER_IMAGE_TAG} ${CI_REGISTRY}/${CI_PROJECT_PATH}/${CI_COMMIT_BRANCH}:latest
     - docker push $CI_REGISTRY/$CI_PROJECT_PATH/$CI_COMMIT_BRANCH:latest  
 
-
   tags: 
     - hp_runner 
 
