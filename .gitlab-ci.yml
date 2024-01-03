@@ -12,7 +12,6 @@ Docker Build:
   variables:
     DOCKER_HOST: tcp://docker:2375
     DOCKER_TLS_CERTDIR: ""
-    IMAGE_NAME: "my-app"
 
   services:
   - docker:24.0.5-dind 
