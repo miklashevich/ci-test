@@ -2,7 +2,7 @@ version: '3.1'
 
 services:
   app:
-    image: registry.gitlab.com/miklashevich.a/service/${CI_COMMIT_BRANCH}:latest
+    image: registry.gitlab.com/miklashevich.a/service/${CI_COMMIT_BRANCH}/my-app:latest
     container_name: app
     restart: always
     ports:
