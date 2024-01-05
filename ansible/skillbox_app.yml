@@ -14,6 +14,7 @@
       git:
         repo: "{{ repository }}"
         dest: "{{ app_path }}"
+        force: yes
 
     - name: "Copy unit file to app_server"
       template:
