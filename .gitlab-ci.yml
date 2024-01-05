@@ -99,7 +99,7 @@ Deploy_to_prod:
     - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
     - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
     - ansible-inventory --graph -i ansible/service.aws_ec2.yml
-    - ansible-playbook ansible/skillbox_app.yml -i ansible/service.aws_ec2.yml --extra-vars "ci_commit_branch=$CI_COMMIT_BRANCH release_version_value=$CI_COMMIT_SHORT_SHA"
+    - ansible-playbook ansible/skillbox_app.yml -i ansible/service.aws_ec2.yml --extra-vars "ci_commit_branch=$CI_COMMIT_BRANCH release_version_value=$CI_COMMIT_SHORT_SHA" --force
   tags: 
     - hp_runner   
 
