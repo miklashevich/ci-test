@@ -28,7 +28,6 @@ Docker Build:
     - hp_runner 
 
 
-
 test:
   stage: test
   image: docker:24.0.5
