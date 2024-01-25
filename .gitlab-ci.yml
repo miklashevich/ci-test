@@ -102,3 +102,5 @@ Deploy_to_prod:
     - ansible-playbook ansible/skillbox_app.yml -i ansible/service.aws_ec2.yml --extra-vars "ci_commit_branch=$CI_COMMIT_BRANCH release_version_value=$CI_COMMIT_SHORT_SHA" --force
   tags: 
     - hp_runner   
+
+
