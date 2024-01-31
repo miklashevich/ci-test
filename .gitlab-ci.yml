@@ -3,6 +3,12 @@ stages:
     - test
     - deploy
 
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - go.mod
+    - go.sum
+
 
 Docker Build:
   stage: build
@@ -28,7 +34,6 @@ Docker Build:
     - hp_runner 
 
 
-
 test:
   stage: test
   image: docker:24.0.5
@@ -51,7 +56,7 @@ Deploy_to_test_env:
     - if: $CI_COMMIT_BRANCH == "uat"  
   before_script:
     - export ANSIBLE_CONFIG=./ansible.cfg
-    - 'command -v ssh-agent >/dev/null || ( apk update && apk add openssh-client )'
+    - 'command -v ssh-agent >/dev/null  ( apk update && apk add openssh-client )'
     - eval $(ssh-agent -s)
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
     - mkdir -p ~/.ssh
@@ -80,7 +85,7 @@ Deploy_to_prod:
       when: manual
   before_script:
     - export ANSIBLE_CONFIG=./ansible.cfg
-    - 'command -v ssh-agent >/dev/null || ( apk update && apk add openssh-client )'
+    - 'command -v ssh-agent >/dev/null  ( apk update && apk add openssh-client )'
     - eval $(ssh-agent -s)
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
     - mkdir -p ~/.ssh
@@ -91,6 +96,7 @@ Deploy_to_prod:
     - pip3 install boto3 botocore
 
 
+
   image:
     name: uhligit/ansible:2.1.0-3-g46e41b3
 
@@ -99,8 +105,8 @@ Deploy_to_prod:
     - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
     - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
     - ansible-inventory --graph -i ansible/service.aws_ec2.yml
-    - ansible-playbook ansible/skillbox_app.yml -i ansible/service.aws_ec2.yml --extra-vars "ci_commit_branch=$CI_COMMIT_BRANCH release_version_value=$CI_COMMIT_SHORT_SHA"
+    - ansible-playbook ansible/skillbox_app.yml -i ansible/service.aws_ec2.yml --extra-vars "ci_commit_branch=$CI_COMMIT_BRANCH release_version_value=$CI_COMMIT_SHORT_SHA" --force
   tags: 
-    - hp_runner   
+    - hp_runner
 
 
