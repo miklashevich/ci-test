@@ -3,6 +3,12 @@ stages:
     - test
     - deploy
 
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - go.mod
+    - go.sum
+
 
 Docker Build:
   stage: build
@@ -50,7 +56,7 @@ Deploy_to_test_env:
     - if: $CI_COMMIT_BRANCH == "uat"  
   before_script:
     - export ANSIBLE_CONFIG=./ansible.cfg
-    - 'command -v ssh-agent >/dev/null || ( apk update && apk add openssh-client )'
+    - 'command -v ssh-agent >/dev/null  ( apk update && apk add openssh-client )'
     - eval $(ssh-agent -s)
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
     - mkdir -p ~/.ssh
@@ -79,7 +85,7 @@ Deploy_to_prod:
       when: manual
   before_script:
     - export ANSIBLE_CONFIG=./ansible.cfg
-    - 'command -v ssh-agent >/dev/null || ( apk update && apk add openssh-client )'
+    - 'command -v ssh-agent >/dev/null  ( apk update && apk add openssh-client )'
     - eval $(ssh-agent -s)
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
     - mkdir -p ~/.ssh
@@ -101,6 +107,6 @@ Deploy_to_prod:
     - ansible-inventory --graph -i ansible/service.aws_ec2.yml
     - ansible-playbook ansible/skillbox_app.yml -i ansible/service.aws_ec2.yml --extra-vars "ci_commit_branch=$CI_COMMIT_BRANCH release_version_value=$CI_COMMIT_SHORT_SHA" --force
   tags: 
-    - hp_runner   
+    - hp_runner
 
 

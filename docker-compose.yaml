@@ -2,10 +2,27 @@ version: '3.1'
 
 services:
   app:
+    build:
+      context: .
+      dockerfile: Dockerfile
     image: registry.gitlab.com/miklashevich.a/service/main/skillbox_app:latest
     container_name: app
     restart: always
     ports:
       - '8080:8080'
 
+
+
+  tests:
+    image: golang:1.16.6-alpine3.14
+    volumes:
+      - .:/tests
+    command: /tests/scripts/test_in_docker.sh
+
+  fmt:
+    image: golang:1.16.6-alpine3.14
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: go fmt ./...
 
