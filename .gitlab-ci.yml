@@ -52,7 +52,7 @@ sonarqube-check:
   only:
     - main
   tags: 
-    - hp_runner 
+    - shell
 
 
 test:
