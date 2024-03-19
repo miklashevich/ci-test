@@ -1,6 +1,6 @@
 stages:
     - build
-    - sonar-scan
+    - sonarqube-check
     - test
     - deploy
 
@@ -35,9 +35,9 @@ Docker Build:
     - hp_runner 
 
 sonarqube-check:
-  stage: sonar-scan
+  stage: sonarqube-check
   image: 
-    name: sonarsource/sonar-scanner-cli:latest
+    name: sonarsource/sonar-scanner-cli:5.0
     entrypoint: [""]
   variables:
     SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
