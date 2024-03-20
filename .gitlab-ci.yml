@@ -48,7 +48,7 @@ sonarqube-check:
       - .sonar/cache
   script: 
     - sonar-scanner
-  allow_failure: true
+  allow_failure: false
   only:
     - main
   tags: 
