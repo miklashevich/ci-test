@@ -118,7 +118,6 @@ Deploy_to_prod:
     - pip3 install boto3 botocore
 
 
-
   image:
     name: uhligit/ansible:2.1.0-3-g46e41b3
 
