@@ -34,6 +34,7 @@ Docker Build:
   tags: 
     - hp_runner 
 
+
 sonarqube-check:
   stage: sonarqube-check
   image: 
