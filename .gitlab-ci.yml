@@ -21,7 +21,6 @@ Docker Build:
 
   services:
   - name: docker:dind
-    command: ["--dns", "8.8.8.8"]
 
   script:
     - docker --version
