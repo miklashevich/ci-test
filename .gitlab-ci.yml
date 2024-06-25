@@ -20,7 +20,8 @@ Docker Build:
     IMAGE_NAME: "skillbox_app"
 
   services:
-  - docker:24.0.5-dind 
+  - name: docker:dind
+    command: ["--dns", "8.8.8.8"]
 
   script:
     - docker --version
