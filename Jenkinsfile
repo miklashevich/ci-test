@@ -4,9 +4,9 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                // Клонирование репозитория
-                //git 'git@github.com:miklashevich/ci-test.git'
-                echo 'проверка'
+                
+                git 'git@github.com:miklashevich/ci-test.git'
+                echo 'Клонирование репозитория'
             } 
         } 
 
