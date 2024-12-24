@@ -18,11 +18,11 @@ pipeline {
             steps {
                 script {
                     def branchName = env.BRANCH_NAME ?: 'master' // Default to 'master' if not set
-                    //def commitHash = env.GIT_COMMIT.take(7) ?: 'unknown' // Default to 'unknown' if not set
+                    def commitHash = env.GIT_COMMIT.take(7) 
 
-                    //echo "Building image for branch: ${branchName}, commit: ${commitHash}"
+                    echo "Building image for branch: ${branchName}, commit: ${commitHash}"
 
-                    //def imageTag = "${IMAGE_NAME}:${PROJECT_NAME}-${branchName}-${commitHash}"
+                    def imageTag = "${IMAGE_NAME}:${PROJECT_NAME}-${branchName}-${commitHash}"
                     def latestTag = "${IMAGE_NAME}/${branchName}:latest"
 
                     sh "docker build -t ${latestTag} ."
