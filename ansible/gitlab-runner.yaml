@@ -1,0 +1,5 @@
+- hosts: gitlab_runner_servers
+  become: true
+  roles:
+    - gitlab_runner
+
