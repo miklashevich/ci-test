@@ -1,47 +1,68 @@
 pipeline {
     agent any
 
+    environment {
+        IMAGE_NAME = "skillbox_app"
+        PROJECT_NAME = "ci-test"
+    }
+
     stages {
         stage('Checkout') {
             steps {
-                
-                git 'git@github.com:miklashevich/ci-test.git'
-                echo 'Клонирование репозитория'
-            } 
+                git credentialsId: '25d3ccab-69c9-47ee-92fe-56c0bb67756c', url: "git@github.com:miklashevich/${PROJECT_NAME}.git"
+                sh 'ls -la'
+            }
         } 
 
         stage('Build') {
             steps {
-                // Сборка проекта
-                //sh './build.sh' // Замените на вашу команду сборки
-                echo 'stage build'
+                script {
+                    def branchName = env.BRANCH_NAME ?: 'master' // Default to 'master' if not set
+                    //def commitHash = env.GIT_COMMIT.take(7) ?: 'unknown' // Default to 'unknown' if not set
+
+                    //echo "Building image for branch: ${branchName}, commit: ${commitHash}"
+
+                    //def imageTag = "${IMAGE_NAME}:${PROJECT_NAME}-${branchName}-${commitHash}"
+                    def latestTag = "${IMAGE_NAME}/${branchName}:latest"
+
+                    sh "docker build -t ${latestTag} ."
+                    sh "docker images"
+                }
             }
         }
 
         stage('Test') {
             steps {
-                
-                //sh './run_tests.sh' // Замените на вашу команду для запуска тестов
-                echo 'запуск тестов'
+                script {
+                    echo 'Running tests...'
+                    sh "echo pwd $pwd"
+                    sh "echo workspace ${WORKSPACE}"
+                    if (fileExists('./run-tests.sh')) {
+                        sh './run-tests.sh'
+                        
+                        
+                        //sh "docker run -v \"${WORKSPACE}:/tests\" golang:1.16.6-alpine3.14 /tests/scripts/test_in_docker.sh"
+                    } else {
+                        error 'Test script not found!'
+                    }
+                }
             }
         }
 
         stage('Deploy') {
             steps {
-                
-                //sh './deploy.sh' // Замените на вашу команду развертывания
-                echo 'деплой'
+                echo 'Deploying...'
+                // Uncomment the line below to run the deploy script
+                // sh './deploy.sh'
             }
         }
     } 
 
     post {
         success {
-            
             echo 'Pipeline completed successfully!'
         }
         failure {
-            
             echo 'Pipeline failed.'
         }
     }
