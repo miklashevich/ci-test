@@ -17,14 +17,16 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    def branchName = env.BRANCH_NAME ?: 'master' // Default to 'master' if not set
+                    def branchName = env.BRANCH_NAME 
                     def commitHash = env.GIT_COMMIT.take(7) 
 
                     echo "Building image for branch: ${branchName}, commit: ${commitHash}"
 
-                    def imageTag = "${IMAGE_NAME}:${PROJECT_NAME}-${branchName}-${commitHash}"
+                    
+                    def commitTag = "${IMAGE_NAME}/${branchName}:${commitHash}" 
                     def latestTag = "${IMAGE_NAME}/${branchName}:latest"
 
+                    sh "docker build -t ${commitTag} ."
                     sh "docker build -t ${latestTag} ."
                     sh "docker images"
                 }
@@ -35,13 +37,10 @@ pipeline {
             steps {
                 script {
                     echo 'Running tests...'
-                    sh "echo pwd $pwd"
                     sh "echo workspace ${WORKSPACE}"
                     if (fileExists('./run-tests.sh')) {
                         sh './run-tests.sh'
                         
-                        
-                        //sh "docker run -v \"${WORKSPACE}:/tests\" golang:1.16.6-alpine3.14 /tests/scripts/test_in_docker.sh"
                     } else {
                         error 'Test script not found!'
                     }
