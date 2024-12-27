@@ -32,6 +32,25 @@ pipeline {
     }
 }
 
+stage('Push to Registry') {
+            steps {
+                script {
+                    def targetBranchName = env.CHANGE_TARGET?.toLowerCase() ?: env.BRANCH_NAME.toLowerCase()
+                    def commitHash = env.GIT_COMMIT.take(7)
+
+                    def commitTag = "${IMAGE_NAME}/${targetBranchName}:${commitHash}"
+                    def latestTag = "${IMAGE_NAME}/${targetBranchName}:latest"
+
+                    echo "Pushing image: ${commitTag} and ${latestTag} to Docker Hub"
+
+                    withDockerRegistry([credentialsId: "${DOCKER_REGISTRY_CREDENTIALS}", url: "${DOCKER_REGISTRY_URL}"]) {
+                        sh "docker push ${commitTag}" 
+                        sh "docker push ${latestTag}" 
+                    }
+                }
+            }
+        }
+
         stage('Test') {
             steps {
                 script {
