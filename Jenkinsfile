@@ -7,6 +7,7 @@ pipeline {
         DOCKER_HUB_REPO = "mik1979"
         DOCKER_REGISTRY_URL = "https://index.docker.io/v1/"
         DOCKER_REGISTRY_CREDENTIALS = "dockerhub-credentials-id"
+        GITHUB_TOKEN = credentials('github_token')
     }
 
     stages {
@@ -76,20 +77,29 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
-            steps {
-                echo 'Deploying...'
-                // sh './deploy.sh'
-            }
-        }
     } 
 
     post {
         success {
-            echo 'Pipeline completed successfully!'
+            script {
+                if (env.CHANGE_TARGET) {
+                    echo "All checks passed. Merging branch ${env.CHANGE_BRANCH} into ${env.CHANGE_TARGET}."
+
+                    sh """
+                        git config user.name "Jenkins"
+                        git config user.email "jenkins@yourdomain.com"
+                        git checkout ${env.CHANGE_TARGET}
+                        git pull origin ${env.CHANGE_TARGET}
+                        git merge ${env.CHANGE_BRANCH} --no-edit
+                        git push origin ${env.CHANGE_TARGET}
+                    """
+                } else {
+                    echo "This is not a Pull Request, merge step is skipped."
+                }
+            }
         }
         failure {
-            echo 'Pipeline failed.'
+            echo "Build or tests failed. Merge will not be performed."
         }
     }
 }
