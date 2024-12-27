@@ -2,8 +2,9 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = "mik1979/skillbox_app"
+        IMAGE_NAME = "skillbox_app"
         PROJECT_NAME = "ci-test"
+        DOCKER_HUB_REPO = "mik1979"
         DOCKER_REGISTRY_URL = "https://index.docker.io/v1/"
         DOCKER_REGISTRY_CREDENTIALS = "dockerhub-credentials-id"
     }
@@ -16,16 +17,16 @@ pipeline {
         } 
 
 
-    stage('Prepare') {
+    stage('Prepare tags') {
             steps {
                 script {
-                    // Определяем переменные один раз
+                    
                     targetBranchName = env.CHANGE_TARGET?.toLowerCase() ?: env.BRANCH_NAME.toLowerCase().replaceAll("/", "-")
                     commitHash = env.GIT_COMMIT.take(7)
                     
-                    commitTag = "mik1979/${IMAGE_NAME}:${targetBranchName}-${commitHash}"
-                    branchTag = "mik1979/${IMAGE_NAME}:${targetBranchName}"
-                    latestTag = "mik1979/${IMAGE_NAME}:latest"
+                    commitTag = "${DOCKER_HUB_REPO}/${IMAGE_NAME}:${targetBranchName}-${commitHash}"
+                    branchTag = "${DOCKER_HUB_REPO}/${IMAGE_NAME}:${targetBranchName}"
+                    latestTag = "${DOCKER_HUB_REPO}/${IMAGE_NAME}:latest"
                 }
             }
         }
@@ -35,7 +36,6 @@ pipeline {
                 script {
                     echo "Building image for target branch: ${targetBranchName}, commit: ${commitHash}"
 
-                    // Собираем образы
                     sh "docker build -t ${commitTag} ."
                     sh "docker tag ${commitTag} ${branchTag}" 
                     sh "docker tag ${commitTag} ${latestTag}" 
