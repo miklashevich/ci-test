@@ -17,40 +17,52 @@ pipeline {
         } 
 
         stage('Build') {
-    steps {
-        script {
-            def targetBranchName = env.CHANGE_TARGET?.toLowerCase() ?: env.BRANCH_NAME.toLowerCase()
+           steps {
+               script {
+            
+            def targetBranchName = env.CHANGE_TARGET?.toLowerCase() ?: env.BRANCH_NAME.toLowerCase().replaceAll("/", "-")
             def commitHash = env.GIT_COMMIT.take(7)
+            
             echo "Building image for target branch: ${targetBranchName}, commit: ${commitHash}"
 
-            def commitTag = "${IMAGE_NAME}/${targetBranchName}:${commitHash}"
-            def latestTag = "${IMAGE_NAME}/${targetBranchName}:latest"
+            // Формируем корректные теги
+            def commitTag = "mik1979/${IMAGE_NAME}:${targetBranchName}-${commitHash}"
+            def branchTag = "mik1979/${IMAGE_NAME}:${targetBranchName}"
+            def latestTag = "mik1979/${IMAGE_NAME}:latest"
 
+            // Собираем образы с нужными тегами
             sh "docker build -t ${commitTag} ."
+            sh "docker build -t ${branchTag} ."
             sh "docker build -t ${latestTag} ."
             sh "docker images"
         }
     }
 }
 
-stage('Push to Registry') {
+        stage('Push to Registry') {
             steps {
                 script {
-                    def targetBranchName = env.CHANGE_TARGET?.toLowerCase() ?: env.BRANCH_NAME.toLowerCase()
-                    def commitHash = env.GIT_COMMIT.take(7)
+            // Получаем имя ветки
+            def targetBranchName = env.CHANGE_TARGET?.toLowerCase() ?: env.BRANCH_NAME.toLowerCase().replaceAll("/", "-")
+            def commitHash = env.GIT_COMMIT.take(7)
 
-                    def commitTag = "${IMAGE_NAME}/${targetBranchName}:${commitHash}"
-                    def latestTag = "${IMAGE_NAME}/${targetBranchName}:latest"
+            // Формируем теги образов
+            def branchTag = "${IMAGE_NAME}:${targetBranchName}"
+            def commitTag = "${IMAGE_NAME}:${targetBranchName}-${commitHash}"
+            def latestTag = "${IMAGE_NAME}:latest"
 
-                    echo "Pushing image: ${commitTag} and ${latestTag} to Docker Hub"
+            echo "Building and pushing image: ${branchTag}, ${commitTag}, and ${latestTag} to Docker Hub"
 
-                    withDockerRegistry([credentialsId: "${DOCKER_REGISTRY_CREDENTIALS}", url: "${DOCKER_REGISTRY_URL}"]) {
-                        sh "docker push ${commitTag}" 
-                        sh "docker push ${latestTag}" 
-                    }
-                }
+            // Логин в Docker Registry
+            withDockerRegistry([credentialsId: "${DOCKER_REGISTRY_CREDENTIALS}", url: "${DOCKER_REGISTRY_URL}"]) {
+                // Пушим образы с разными тегами
+                sh "docker push ${branchTag}"   // Тег с именем ветки
+                sh "docker push ${commitTag}"  // Тег с именем ветки и хэшем коммита
+                sh "docker push ${latestTag}"  // Тег latest
             }
         }
+    }
+}
 
         stage('Test') {
             steps {
