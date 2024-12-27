@@ -51,7 +51,6 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo 'Deploying...'
-                // Uncomment the line below to run the deploy script
                 // sh './deploy.sh'
             }
         }
