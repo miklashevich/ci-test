@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = "skillbox_app"
+        IMAGE_NAME = "mik1979/skillbox_app"
         PROJECT_NAME = "ci-test"
         DOCKER_REGISTRY_URL = "https://index.docker.io/v1/"
         DOCKER_REGISTRY_CREDENTIALS = "dockerhub-credentials-id"
@@ -21,7 +21,6 @@ pipeline {
         script {
             def targetBranchName = env.CHANGE_TARGET?.toLowerCase() ?: env.BRANCH_NAME.toLowerCase()
             def commitHash = env.GIT_COMMIT.take(7)
-            ///
             echo "Building image for target branch: ${targetBranchName}, commit: ${commitHash}"
 
             def commitTag = "${IMAGE_NAME}/${targetBranchName}:${commitHash}"
