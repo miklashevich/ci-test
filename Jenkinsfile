@@ -17,7 +17,7 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    def branchName = env.BRANCH_NAME 
+                    def branchName = env.BRANCH_NAME.toLowerCase()
                     def commitHash = env.GIT_COMMIT.take(7) 
 
                     echo "Building image for branch: ${branchName}, commit: ${commitHash}"
