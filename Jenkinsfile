@@ -19,7 +19,7 @@ pipeline {
         script {
             def targetBranchName = env.CHANGE_TARGET?.toLowerCase() ?: env.BRANCH_NAME.toLowerCase()
             def commitHash = env.GIT_COMMIT.take(7)
-
+            ///
             echo "Building image for target branch: ${targetBranchName}, commit: ${commitHash}"
 
             def commitTag = "${IMAGE_NAME}/${targetBranchName}:${commitHash}"
