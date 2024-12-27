@@ -15,23 +15,22 @@ pipeline {
         } 
 
         stage('Build') {
-            steps {
-                script {
-                    def branchName = env.BRANCH_NAME.toLowerCase()
-                    def commitHash = env.GIT_COMMIT.take(7) 
+    steps {
+        script {
+            def targetBranchName = env.CHANGE_TARGET?.toLowerCase() ?: env.BRANCH_NAME.toLowerCase()
+            def commitHash = env.GIT_COMMIT.take(7)
 
-                    echo "Building image for branch: ${branchName}, commit: ${commitHash}"
+            echo "Building image for target branch: ${targetBranchName}, commit: ${commitHash}"
 
-                    
-                    def commitTag = "${IMAGE_NAME}/${branchName}:${commitHash}" 
-                    def latestTag = "${IMAGE_NAME}/${branchName}:latest"
+            def commitTag = "${IMAGE_NAME}/${targetBranchName}:${commitHash}"
+            def latestTag = "${IMAGE_NAME}/${targetBranchName}:latest"
 
-                    sh "docker build -t ${commitTag} ."
-                    sh "docker build -t ${latestTag} ."
-                    sh "docker images"
-                }
-            }
+            sh "docker build -t ${commitTag} ."
+            sh "docker build -t ${latestTag} ."
+            sh "docker images"
         }
+    }
+}
 
         stage('Test') {
             steps {
