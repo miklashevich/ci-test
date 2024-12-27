@@ -4,6 +4,8 @@ pipeline {
     environment {
         IMAGE_NAME = "skillbox_app"
         PROJECT_NAME = "ci-test"
+        DOCKER_REGISTRY_URL = "https://index.docker.io/v1/"
+        DOCKER_REGISTRY_CREDENTIALS = "dockerhub-credentials-id"
     }
 
     stages {
