@@ -50,9 +50,9 @@ pipeline {
         stage('Auto-Merge PR to Dev') {
             when {
                 anyOf {
-                         branch 'dev'
-                         expression { env.CHANGE_TARGET == 'dev' }
-    }
+                    branch 'dev'
+                    expression { env.CHANGE_TARGET == 'dev' }
+                }
             }
             steps {
                 script {
@@ -76,7 +76,6 @@ pipeline {
         stage('Build Image (Post-Merge)') {
             when {
                 expression { env.BRANCH_NAME == 'dev' || env.CHANGE_TARGET == 'dev' }
-            }
             }
             steps {
                 script {
@@ -112,7 +111,7 @@ pipeline {
                 }
             }
         }
-    
+    }
 
     post {
         success {
@@ -123,4 +122,3 @@ pipeline {
         }
     }
 }
-
