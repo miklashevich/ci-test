@@ -7,6 +7,7 @@ pipeline {
         DOCKER_HUB_REPO = "mik1979"
         DOCKER_REGISTRY_URL = "https://index.docker.io/v1/"
         DOCKER_REGISTRY_CREDENTIALS = "dockerhub-credentials-id"
+        DOCKER_BUILDKIT = "1"
         GITHUB_TOKEN = credentials('github_token')
     }
 
@@ -32,18 +33,23 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Build with BuildKit') {
             steps {
                 script {
-                    echo "Building image for target branch: ${targetBranchName}, commit: ${commitHash}"
+                    echo "Building image with BuildKit for branch: ${targetBranchName}, commit: ${commitHash}"
 
-                    sh "docker build -t ${commitTag} ."
-                    sh "docker tag ${commitTag} ${branchTag}" 
-                    sh "docker tag ${commitTag} ${latestTag}" 
-                    sh "docker images"
+                    sh """
+                        docker build \
+                        --progress=plain \
+                        -t ${commitTag} \
+                        -t ${branchTag} \
+                        -t ${latestTag} \
+                        .
+                    """
                 }
             }
         }
+
         
 
         stage('Test') {
