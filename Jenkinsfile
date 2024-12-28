@@ -33,23 +33,6 @@ pipeline {
             }
         }
 
-        stage('Build with BuildKit') {
-            steps {
-                script {
-                    echo "Building image with BuildKit for branch: ${targetBranchName}, commit: ${commitHash}"
-
-                    sh """
-                        docker build \
-                        --progress=plain \
-                        -t ${commitTag} \
-                        -t ${branchTag} \
-                        -t ${latestTag} \
-                        .
-                    """
-                }
-            }
-        }
-
         
 
         stage('Test') {
@@ -68,28 +51,16 @@ pipeline {
         }
 
 
-        stage('Push to Registry') {
-            steps {
-                script {
-                    echo "Pushing images: ${commitTag}, ${branchTag}, and ${latestTag} to Docker Hub"
-
-                    
-                    withDockerRegistry([credentialsId: "${DOCKER_REGISTRY_CREDENTIALS}", url: "${DOCKER_REGISTRY_URL}"]) {
-                        sh "docker push ${commitTag}"   
-                        sh "docker push ${branchTag}"  
-                        sh "docker push ${latestTag}"  
-                    }
+        stage('Auto-Merge PR to Dev') {
+            when {
+                allOf {
+                    expression { env.CHANGE_TARGET == 'dev' }
+                    expression { env.CHANGE_BRANCH != null }
                 }
             }
-        }
-
-    } 
-
-    post {
-        success {
-            script {
-                if (env.CHANGE_TARGET) {
-                    echo "All checks passed. Merging branch ${env.CHANGE_BRANCH} into ${env.CHANGE_TARGET}."
+            steps {
+                script {
+                    echo "Auto-merging branch ${env.CHANGE_BRANCH} into ${env.CHANGE_TARGET}."
 
                     sh """
                         git config user.name "Jenkins"
@@ -99,13 +70,59 @@ pipeline {
                         git merge ${env.CHANGE_BRANCH} --no-edit
                         git push https://oauth2:${GITHUB_TOKEN}@github.com/miklashevich/${PROJECT_NAME}.git ${env.CHANGE_TARGET}
                     """
-                } else {
-                    echo "This is not a Pull Request, merge step is skipped."
                 }
             }
         }
+
+        stage('Build Image (Post-Merge)') {
+            when {
+                branch 'dev'
+            }
+            steps {
+                script {
+                    targetBranchName = env.BRANCH_NAME.toLowerCase().replaceAll("/", "-")
+                    commitHash = env.GIT_COMMIT.take(7)
+
+                    echo "Building image with BuildKit for branch: ${targetBranchName}, commit: ${commitHash}"
+
+                    sh """
+                        docker build \
+                        --progress=plain \
+                        --cache-from=type=local,src=/cache \
+                        --cache-to=type=local,dest=/cache \
+                        -t ${commitTag} \
+                        -t ${branchTag} \
+                        -t ${latestTag} \
+                        .
+                    """
+                }
+            }
+        }
+
+        stage('Push to Registry') {
+            when {
+                branch 'dev'
+            }
+            steps {
+                script {
+                    echo "Pushing images: ${commitTag}, ${branchTag}, and ${latestTag} to Docker Hub"
+
+                    withDockerRegistry([credentialsId: "${DOCKER_REGISTRY_CREDENTIALS}", url: "${DOCKER_REGISTRY_URL}"]) {
+                        sh "docker push ${commitTag}"   
+                        sh "docker push ${branchTag}"  
+                        sh "docker push ${latestTag}"  
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "Build succeeded!"
+        }
         failure {
-            echo "Build or tests failed. Merge will not be performed."
+            echo "Build failed. No merge performed."
         }
     }
 }
