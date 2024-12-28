@@ -18,21 +18,20 @@ pipeline {
             }
         } 
 
-
-    stage('Prepare tags') {
+        stage('Prepare Tags') {
             steps {
                 script {
-                    
+                    // Генерация тегов для образов
                     targetBranchName = env.CHANGE_TARGET?.toLowerCase() ?: env.BRANCH_NAME.toLowerCase().replaceAll("/", "-")
                     commitHash = env.GIT_COMMIT.take(7)
-                    
+
+                    // Формируем теги
                     commitTag = "${DOCKER_HUB_REPO}/${IMAGE_NAME}:${targetBranchName}-${commitHash}"
                     branchTag = "${DOCKER_HUB_REPO}/${IMAGE_NAME}:${targetBranchName}"
                     latestTag = "${DOCKER_HUB_REPO}/${IMAGE_NAME}:latest"
                 }
             }
         }
-
 
         stage('Test') {
             steps {
@@ -41,7 +40,6 @@ pipeline {
                     sh "echo workspace ${WORKSPACE}"
                     if (fileExists('./run-tests.sh')) {
                         sh './run-tests.sh'
-                        
                     } else {
                         error 'Test script not found!'
                     }
@@ -65,6 +63,7 @@ pipeline {
                         git config user.email "jenkins@yourdomain.com"
                         git checkout ${env.CHANGE_TARGET}
                         git pull https://oauth2:${GITHUB_TOKEN}@github.com/miklashevich/${PROJECT_NAME}.git ${env.CHANGE_TARGET}
+                        git fetch origin ${env.CHANGE_BRANCH}:${env.CHANGE_BRANCH}
                         git merge ${env.CHANGE_BRANCH} --no-edit
                         git push https://oauth2:${GITHUB_TOKEN}@github.com/miklashevich/${PROJECT_NAME}.git ${env.CHANGE_TARGET}
                     """
@@ -78,9 +77,6 @@ pipeline {
             }
             steps {
                 script {
-                    targetBranchName = env.BRANCH_NAME.toLowerCase().replaceAll("/", "-")
-                    commitHash = env.GIT_COMMIT.take(7)
-
                     echo "Building image with BuildKit for branch: ${targetBranchName}, commit: ${commitHash}"
 
                     sh """
