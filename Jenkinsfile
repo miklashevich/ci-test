@@ -33,7 +33,6 @@ pipeline {
             }
         }
 
-        
 
         stage('Test') {
             steps {
@@ -49,7 +48,6 @@ pipeline {
                 }
             }
         }
-
 
         stage('Auto-Merge PR to Dev') {
             when {
