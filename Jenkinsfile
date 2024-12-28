@@ -49,10 +49,10 @@ pipeline {
 
         stage('Auto-Merge PR to Dev') {
             when {
-                allOf {
-                    expression { env.CHANGE_TARGET == 'dev' }
-                    expression { env.CHANGE_BRANCH != null }
-                }
+                anyOf {
+                         branch 'dev'
+                         expression { env.CHANGE_TARGET == 'dev' }
+    }
             }
             steps {
                 script {
