@@ -13,7 +13,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git credentialsId: '25d3ccab-69c9-47ee-92fe-56c0bb67756c', url: "git@github.com:miklashevich/${PROJECT_NAME}.git"
+                git credentialsId: 'github_token', url: "https://oauth2:${GITHUB_TOKEN}@github.com/miklashevich/${PROJECT_NAME}.git"
             }
         } 
 
@@ -89,9 +89,9 @@ pipeline {
                         git config user.name "Jenkins"
                         git config user.email "jenkins@yourdomain.com"
                         git checkout ${env.CHANGE_TARGET}
-                        git pull origin ${env.CHANGE_TARGET}
+                        git pull https://oauth2:${GITHUB_TOKEN}@github.com/miklashevich/${PROJECT_NAME}.git ${env.CHANGE_TARGET}
                         git merge ${env.CHANGE_BRANCH} --no-edit
-                        git push origin ${env.CHANGE_TARGET}
+                        git push https://oauth2:${GITHUB_TOKEN}@github.com/miklashevich/${PROJECT_NAME}.git ${env.CHANGE_TARGET}
                     """
                 } else {
                     echo "This is not a Pull Request, merge step is skipped."
