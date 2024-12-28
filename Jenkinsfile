@@ -66,6 +66,8 @@ pipeline {
                         git fetch origin ${env.CHANGE_BRANCH}:${env.CHANGE_BRANCH}
                         git merge ${env.CHANGE_BRANCH} --no-edit
                         git push https://oauth2:${GITHUB_TOKEN}@github.com/miklashevich/${PROJECT_NAME}.git ${env.CHANGE_TARGET}
+                        git checkout dev
+                        git pull origin dev
                     """
                 }
             }
@@ -73,7 +75,8 @@ pipeline {
 
         stage('Build Image (Post-Merge)') {
             when {
-                branch 'dev'
+                expression { env.BRANCH_NAME == 'dev' || env.CHANGE_TARGET == 'dev' }
+            }
             }
             steps {
                 script {
