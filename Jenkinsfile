@@ -101,8 +101,6 @@ pipeline {
             sh """
                 docker buildx build  \
                 --progress=plain \
-                --cache-from=type=local,src=/cache \
-                --cache-to=type=local,dest=/cache \
                 -t ${commitTag} \
                 -t ${latestTag} \
                 .
