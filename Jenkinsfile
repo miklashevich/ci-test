@@ -21,11 +21,10 @@ pipeline {
         stage('Prepare Tags') {
             steps {
                 script {
-                    // Генерация тегов для образов
+                    
                     targetBranchName = env.CHANGE_TARGET?.toLowerCase() ?: env.BRANCH_NAME.toLowerCase().replaceAll("/", "-")
                     commitHash = env.GIT_COMMIT.take(7)
 
-                    // Формируем теги
                     commitTag = "${DOCKER_HUB_REPO}/${IMAGE_NAME}:${targetBranchName}-${commitHash}"
                     branchTag = "${DOCKER_HUB_REPO}/${IMAGE_NAME}:${targetBranchName}"
                     latestTag = "${DOCKER_HUB_REPO}/${IMAGE_NAME}:latest"
@@ -82,7 +81,7 @@ pipeline {
                     echo "Building image with BuildKit for branch: ${targetBranchName}, commit: ${commitHash}"
 
                     sh """
-                        docker build \
+                        docker buildx build  \
                         --progress=plain \
                         --cache-from=type=local,src=/cache \
                         --cache-to=type=local,dest=/cache \
