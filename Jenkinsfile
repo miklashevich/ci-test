@@ -82,7 +82,7 @@ pipeline {
             
             
             sh """
-                docker buildx create --name mybuilder-${env.BUILD_ID} --use --driver docker
+                docker buildx use mybuilder-${env.BUILD_ID}
             """
             
             sh """
