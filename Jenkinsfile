@@ -86,7 +86,6 @@ pipeline {
                         --cache-from=type=local,src=/cache \
                         --cache-to=type=local,dest=/cache \
                         -t ${commitTag} \
-                        -t ${branchTag} \
                         -t ${latestTag} \
                         .
                     """
