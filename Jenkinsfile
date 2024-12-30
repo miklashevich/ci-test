@@ -73,7 +73,6 @@ pipeline {
         }
 
 
-        stages {
         stage('Setup Buildx') {
             steps {
                 script {
