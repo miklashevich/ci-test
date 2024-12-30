@@ -79,6 +79,10 @@ pipeline {
             steps {
                 script {
                     echo "Building image with BuildKit for branch: ${targetBranchName}, commit: ${commitHash}"
+                    
+                    sh """
+                        docker buildx create --name mybuilder --use --driver containerd
+                    """
 
                     sh """
                         docker buildx build  \
