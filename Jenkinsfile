@@ -73,29 +73,30 @@ pipeline {
         }
 
         stage('Build Image (Post-Merge)') {
-            when {
-                expression { env.BRANCH_NAME == 'dev' || env.CHANGE_TARGET == 'dev' }
-            }
-            steps {
-                script {
-                    echo "Building image with BuildKit for branch: ${targetBranchName}, commit: ${commitHash}"
-                    
-                    sh """
-                        docker buildx create --name mybuilder-${env.BUILD_ID} --use --driver containerd
-                    """
-
-                    sh """
-                        docker buildx build  \
-                        --progress=plain \
-                        --cache-from=type=local,src=/cache \
-                        --cache-to=type=local,dest=/cache \
-                        -t ${commitTag} \
-                        -t ${latestTag} \
-                        .
-                    """
-                }
-            }
+    when {
+        expression { env.BRANCH_NAME == 'dev' || env.CHANGE_TARGET == 'dev' }
+    }
+    steps {
+        script {
+            echo "Building image with BuildKit for branch: ${targetBranchName}, commit: ${commitHash}"
+            
+            
+            sh """
+                docker buildx create --name mybuilder-${env.BUILD_ID} --use --driver docker
+            """
+            
+            sh """
+                docker buildx build  \
+                --progress=plain \
+                --cache-from=type=local,src=/cache \
+                --cache-to=type=local,dest=/cache \
+                -t ${commitTag} \
+                -t ${latestTag} \
+                .
+            """
         }
+    }
+}
 
         stage('Push to Registry') {
             when {
