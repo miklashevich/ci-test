@@ -81,7 +81,7 @@ pipeline {
                     echo "Building image with BuildKit for branch: ${targetBranchName}, commit: ${commitHash}"
                     
                     sh """
-                        docker buildx create --name mybuilder --use --driver containerd
+                        docker buildx create --name mybuilder-${env.BUILD_ID} --use --driver containerd
                     """
 
                     sh """
