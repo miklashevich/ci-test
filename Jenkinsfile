@@ -92,18 +92,8 @@ pipeline {
         script {
             echo "Building image with BuildKit for branch: ${targetBranchName}, commit: ${commitHash}"
             
-            // Проверка существующего контекста
-            def contextExists = sh(script: "docker buildx ls | grep mybuilder-${env.BUILD_ID}", returnStatus: true) == 0
+            sh "docker buildx use default"
 
-            if (contextExists) {
-                // Использование существующего контекста
-                sh "docker buildx use mybuilder-${env.BUILD_ID}"
-            } else {
-                // Создание нового билд-контекста с драйвером docker
-                sh "docker buildx create --name mybuilder-${env.BUILD_ID} --use --driver docker"
-            }
-
-            // Выполнение сборки с использованием созданного или существующего контекста
             sh """
                 docker buildx build  \
                 --progress=plain \
