@@ -74,22 +74,19 @@ pipeline {
 
 
         stage('Setup Buildx') {
-            steps {
-                script {
-                    
-                    def builderExists = sh(script: "docker buildx inspect jenkinsbuilder --bootstrap", returnStatus: true) == 0
+    steps {
+        script {
+            def builderExists = sh(script: "docker buildx inspect jenkinsbuilder --bootstrap", returnStatus: true) == 0
 
-                    if (!builderExists) {
-                       
-                        sh "docker buildx create --name enkinsbuilder --driver docker-container"
-                    }
-
-                    
-                    sh "docker buildx use enkinsbuilder"
-                }
+            if (!builderExists) {
+                
+                sh "docker buildx create --name jenkinsbuilder --driver docker-container"
             }
+            
+            sh "docker buildx use jenkinsbuilder"
         }
-
+    }
+}
 
         stage('Build Image (Post-Merge)') {
     when {
