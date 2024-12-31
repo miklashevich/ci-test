@@ -58,16 +58,25 @@ pipeline {
                     echo "Auto-merging branch ${env.CHANGE_BRANCH} into ${env.CHANGE_TARGET}."
 
                     sh """
-                        git config user.name "Jenkins"
-                        git config user.email "jenkins@yourdomain.com"
-                        git checkout ${env.CHANGE_TARGET}
-                        git pull https://oauth2:${GITHUB_TOKEN}@github.com/miklashevich/${PROJECT_NAME}.git ${env.CHANGE_TARGET}
-                        git fetch origin ${env.CHANGE_BRANCH}:${env.CHANGE_BRANCH}
-                        git merge ${env.CHANGE_BRANCH} --no-edit
-                        git push https://oauth2:${GITHUB_TOKEN}@github.com/miklashevich/${PROJECT_NAME}.git ${env.CHANGE_TARGET}
-                        git checkout dev
-                        git pull origin dev
-                    """
+            git config user.name "Jenkins"
+            git config user.email "jenkins@yourdomain.com"
+            git fetch origin
+
+            git checkout ${env.CHANGE_TARGET}
+            git pull --rebase origin ${env.CHANGE_TARGET}
+
+            
+            git checkout ${env.CHANGE_BRANCH}
+            git merge ${env.CHANGE_TARGET} --no-edit
+
+            
+            git checkout ${env.CHANGE_TARGET}
+            git push https://oauth2:${GITHUB_TOKEN}@github.com/miklashevich/${PROJECT_NAME}.git ${env.CHANGE_TARGET}
+
+            
+            git checkout dev
+            git pull origin dev
+        """
                 }
             }
         }
