@@ -21,7 +21,6 @@ pipeline {
         stage('Prepare Tags') {
             steps {
                 script {
-                    
                     targetBranchName = env.CHANGE_TARGET?.toLowerCase() ?: env.BRANCH_NAME.toLowerCase().replaceAll("/", "-")
                     commitHash = env.GIT_COMMIT.take(7)
 
@@ -54,75 +53,73 @@ pipeline {
                 }
             }
             steps {
-    script {
-        echo "Auto-merging branch ${env.CHANGE_BRANCH} into ${env.CHANGE_TARGET}."
+                script {
+                    echo "Auto-merging branch ${env.CHANGE_BRANCH} into ${env.CHANGE_TARGET}."
 
-        sh """
-            git config user.name "Jenkins"
-            git config user.email "jenkins@yourdomain.com"
-            git fetch origin
+                    sh """
+                        git config user.name "Jenkins"
+                        git config user.email "jenkins@yourdomain.com"
+                        git fetch origin
 
-            git checkout ${env.CHANGE_TARGET}
-            git pull --rebase origin ${env.CHANGE_TARGET}
+                        git checkout ${env.CHANGE_TARGET}
+                        git pull --rebase origin ${env.CHANGE_TARGET}
 
-            echo "Attempting to checkout branch: ${env.CHANGE_BRANCH}"
-            if git show-ref --verify --quiet refs/heads/${env.CHANGE_BRANCH}; then
-                git checkout ${env.CHANGE_BRANCH}
-            else
-                echo "Branch ${env.CHANGE_BRANCH} not found. Exiting."
-                exit 1
-            fi
+                        echo "Attempting to checkout branch: ${env.CHANGE_BRANCH}"
+                        if git show-ref --verify --quiet refs/heads/${env.CHANGE_BRANCH}; then
+                            git checkout ${env.CHANGE_BRANCH}
+                        else
+                            echo "Branch ${env.CHANGE_BRANCH} not found. Exiting."
+                            exit 1
+                        fi
 
-            git merge ${env.CHANGE_TARGET} --no-edit
+                        git merge ${env.CHANGE_TARGET} --no-edit
 
-            git checkout ${env.CHANGE_TARGET}
-            git push https://oauth2:${GITHUB_TOKEN}@github.com/miklashevich/${PROJECT_NAME}.git ${env.CHANGE_TARGET}
+                        git checkout ${env.CHANGE_TARGET}
+                        git push https://oauth2:${GITHUB_TOKEN}@github.com/miklashevich/${PROJECT_NAME}.git ${env.CHANGE_TARGET}
 
-            git checkout dev
-            git pull origin dev
-        """
-    }
-}
-
+                        git checkout dev
+                        git pull origin dev
+                    """
+                }
+            }
+        }
 
         stage('Setup Buildx') {
-    steps {
-        script {
-            def builderExists = sh(script: "docker buildx inspect jenkinsbuilder --bootstrap", returnStatus: true) == 0
+            steps {
+                script {
+                    def builderExists = sh(script: "docker buildx inspect jenkinsbuilder --bootstrap", returnStatus: true) == 0
 
-            if (!builderExists) {
-                
-                sh "docker buildx create --name jenkinsbuilder --driver docker-container"
+                    if (!builderExists) {
+                        sh "docker buildx create --name jenkinsbuilder --driver docker-container"
+                    }
+                    
+                    sh "docker buildx use jenkinsbuilder"
+                }
             }
-            
-            sh "docker buildx use jenkinsbuilder"
         }
-    }
-}
 
         stage('Build Image (Post-Merge)') {
-    when {
-        expression { env.BRANCH_NAME == 'dev' || env.CHANGE_TARGET == 'dev' }
-    }
-    steps {
-        script {
-            echo "Building image with BuildKit for branch: ${targetBranchName}, commit: ${commitHash}"
-            
-            sh "docker buildx use default"
+            when {
+                expression { env.BRANCH_NAME == 'dev' || env.CHANGE_TARGET == 'dev' }
+            }
+            steps {
+                script {
+                    echo "Building image with BuildKit for branch: ${targetBranchName}, commit: ${commitHash}"
+                    
+                    sh "docker buildx use default"
 
-            sh """
-                docker buildx build  \
-                --progress=plain \
-                -t ${commitTag} \
-                -t ${latestTag} \
-                .
-            """
+                    sh """
+                        docker buildx build  \
+                        --progress=plain \
+                        -t ${commitTag} \
+                        -t ${latestTag} \
+                        .
+                    """
+                }
+            }
         }
-    }
-}
 
         stage('Push to Registry') {
-            
             steps {
                 script {
                     echo "Pushing images: ${commitTag}, ${branchTag}, and ${latestTag} to Docker Hub"
