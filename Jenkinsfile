@@ -4,33 +4,33 @@ pipeline {
     environment {
         IMAGE_NAME = "skillbox_app"
         PROJECT_NAME = "ci-test"
+        DOCKER_HUB_REPO = "mik1979"
+        DOCKER_REGISTRY_URL = "https://index.docker.io/v1/"
+        DOCKER_REGISTRY_CREDENTIALS = "dockerhub-credentials-id"
+        DOCKER_BUILDKIT = "1"
+        GITHUB_TOKEN = credentials('github_token')
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git credentialsId: '25d3ccab-69c9-47ee-92fe-56c0bb67756c', url: "git@github.com:miklashevich/${PROJECT_NAME}.git"
-                sh 'ls -la'
+                git credentialsId: 'github_token', url: "https://oauth2:${GITHUB_TOKEN}@github.com/miklashevich/${PROJECT_NAME}.git"
             }
         } 
 
-        stage('Build') {
-    steps {
-        script {
-            def targetBranchName = env.CHANGE_TARGET?.toLowerCase() ?: env.BRANCH_NAME.toLowerCase()
-            def commitHash = env.GIT_COMMIT.take(7)
-            ///
-            echo "Building image for target branch: ${targetBranchName}, commit: ${commitHash}"
+        stage('Prepare Tags') {
+            steps {
+                script {
+                    
+                    targetBranchName = env.CHANGE_TARGET?.toLowerCase() ?: env.BRANCH_NAME.toLowerCase().replaceAll("/", "-")
+                    commitHash = env.GIT_COMMIT.take(7)
 
-            def commitTag = "${IMAGE_NAME}/${targetBranchName}:${commitHash}"
-            def latestTag = "${IMAGE_NAME}/${targetBranchName}:latest"
-
-            sh "docker build -t ${commitTag} ."
-            sh "docker build -t ${latestTag} ."
-            sh "docker images"
+                    commitTag = "${DOCKER_HUB_REPO}/${IMAGE_NAME}:${targetBranchName}-${commitHash}"
+                    branchTag = "${DOCKER_HUB_REPO}/${IMAGE_NAME}:${targetBranchName}"
+                    latestTag = "${DOCKER_HUB_REPO}/${IMAGE_NAME}:latest"
+                }
+            }
         }
-    }
-}
 
         stage('Test') {
             steps {
@@ -39,7 +39,6 @@ pipeline {
                     sh "echo workspace ${WORKSPACE}"
                     if (fileExists('./run-tests.sh')) {
                         sh './run-tests.sh'
-                        
                     } else {
                         error 'Test script not found!'
                     }
@@ -47,20 +46,93 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
+        stage('Auto-Merge PR to Dev') {
+            when {
+                anyOf {
+                    branch 'dev'
+                    expression { env.CHANGE_TARGET == 'dev' }
+                }
+            }
             steps {
-                echo 'Deploying...'
-                // sh './deploy.sh'
+                script {
+                    echo "Auto-merging branch ${env.CHANGE_BRANCH} into ${env.CHANGE_TARGET}."
+
+                    sh """
+                        git config user.name "Jenkins"
+                        git config user.email "jenkins@yourdomain.com"
+                        git checkout ${env.CHANGE_TARGET}
+                        git pull https://oauth2:${GITHUB_TOKEN}@github.com/miklashevich/${PROJECT_NAME}.git ${env.CHANGE_TARGET}
+                        git fetch origin ${env.CHANGE_BRANCH}:${env.CHANGE_BRANCH}
+                        git merge ${env.CHANGE_BRANCH} --no-edit
+                        git push https://oauth2:${GITHUB_TOKEN}@github.com/miklashevich/${PROJECT_NAME}.git ${env.CHANGE_TARGET}
+                        git checkout dev
+                        git pull origin dev
+                    """
+                }
             }
         }
-    } 
+
+
+        stage('Setup Buildx') {
+    steps {
+        script {
+            def builderExists = sh(script: "docker buildx inspect jenkinsbuilder --bootstrap", returnStatus: true) == 0
+
+            if (!builderExists) {
+                
+                sh "docker buildx create --name jenkinsbuilder --driver docker-container"
+            }
+            
+            sh "docker buildx use jenkinsbuilder"
+        }
+    }
+}
+
+        stage('Build Image (Post-Merge)') {
+    when {
+        expression { env.BRANCH_NAME == 'dev' || env.CHANGE_TARGET == 'dev' }
+    }
+    steps {
+        script {
+            echo "Building image with BuildKit for branch: ${targetBranchName}, commit: ${commitHash}"
+            
+            sh "docker buildx use default"
+
+            sh """
+                docker buildx build  \
+                --progress=plain \
+                -t ${commitTag} \
+                -t ${latestTag} \
+                .
+            """
+        }
+    }
+}
+
+        stage('Push to Registry') {
+            when {
+                branch 'dev'
+            }
+            steps {
+                script {
+                    echo "Pushing images: ${commitTag}, ${branchTag}, and ${latestTag} to Docker Hub"
+
+                    withDockerRegistry([credentialsId: "${DOCKER_REGISTRY_CREDENTIALS}", url: "${DOCKER_REGISTRY_URL}"]) {
+                        sh "docker push ${commitTag}"   
+                        sh "docker push ${branchTag}"  
+                        sh "docker push ${latestTag}"  
+                    }
+                }
+            }
+        }
+    }
 
     post {
         success {
-            echo 'Pipeline completed successfully!'
+            echo "Build succeeded!"
         }
         failure {
-            echo 'Pipeline failed.'
+            echo "Build failed. No merge performed."
         }
     }
 }
