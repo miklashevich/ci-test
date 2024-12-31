@@ -110,7 +110,9 @@ pipeline {
 }
 
         stage('Push to Registry') {
-            
+            when {
+                branch 'dev'
+            }
             steps {
                 script {
                     echo "Pushing images: ${commitTag}, ${branchTag}, and ${latestTag} to Docker Hub"
