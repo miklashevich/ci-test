@@ -54,10 +54,10 @@ pipeline {
                 }
             }
             steps {
-                script {
-                    echo "Auto-merging branch ${env.CHANGE_BRANCH} into ${env.CHANGE_TARGET}."
+    script {
+        echo "Auto-merging branch ${env.CHANGE_BRANCH} into ${env.CHANGE_TARGET}."
 
-                    sh """
+        sh """
             git config user.name "Jenkins"
             git config user.email "jenkins@yourdomain.com"
             git fetch origin
@@ -65,21 +65,24 @@ pipeline {
             git checkout ${env.CHANGE_TARGET}
             git pull --rebase origin ${env.CHANGE_TARGET}
 
-            
-            git checkout ${env.CHANGE_BRANCH}
+            echo "Attempting to checkout branch: ${env.CHANGE_BRANCH}"
+            if git show-ref --verify --quiet refs/heads/${env.CHANGE_BRANCH}; then
+                git checkout ${env.CHANGE_BRANCH}
+            else
+                echo "Branch ${env.CHANGE_BRANCH} not found. Exiting."
+                exit 1
+            fi
+
             git merge ${env.CHANGE_TARGET} --no-edit
 
-            
             git checkout ${env.CHANGE_TARGET}
             git push https://oauth2:${GITHUB_TOKEN}@github.com/miklashevich/${PROJECT_NAME}.git ${env.CHANGE_TARGET}
 
-            
             git checkout dev
             git pull origin dev
         """
-                }
-            }
-        }
+    }
+}
 
 
         stage('Setup Buildx') {
