@@ -27,6 +27,10 @@ pipeline {
         stage('Validate Webhook Data') {
             steps {
                 script {
+                    
+                    echo "PR_NUMBER: ${env.PR_NUMBER}"
+                    echo "TARGET_BRANCH: ${env.TARGET_BRANCH}"
+
                     if (!env.PR_NUMBER || !env.TARGET_BRANCH) {
                         error "Отсутствует необходимая информация из Webhook. Проверьте передаваемые данные."
                     }
