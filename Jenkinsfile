@@ -14,9 +14,9 @@ pipeline {
         GenericTrigger(
             causeString: 'Triggered by Webhook',
             genericVariables: [
-                [key: 'PR_NUMBER', value: '$number'], // номер PR из Webhook
-                [key: 'TARGET_BRANCH', value: '$pull_request.base.ref'] // Ветка назначения из Webhook
-            ],
+            [key: 'PR_NUMBER', value: '$pull_request.number'], // номер PR из Webhook
+            [key: 'TARGET_BRANCH', value: '$pull_request.base.ref'] // Ветка назначения из Webhook
+        ],
             token: env.GITHUB_TOKEN, 
             printContributedVariables: true,
             printPostContent: true
@@ -24,6 +24,20 @@ pipeline {
     }
 
     stages {
+
+
+       stage('Print Environment Variables') {
+            steps {
+                script {
+                    // Вывод всех переменных окружения
+                    echo "Доступные переменные окружения:"
+                    env.each { key, value ->
+                        echo "${key} = ${value}"
+                    }
+                }
+            }
+        }
+
         stage('Validate Webhook Data') {
             steps {
                 script {
