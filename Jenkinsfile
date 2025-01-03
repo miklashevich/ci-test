@@ -17,7 +17,7 @@ pipeline {
                 [key: 'PR_NUMBER', value: '$pull_request_number'], // номер PR из Webhook
                 [key: 'TARGET_BRANCH', value: '$target_branch'] // Ветка назначения из Webhook
             ],
-            token: 'github_token', // 
+            token: ${GITHUB_TOKEN}, 
             printContributedVariables: true,
             printPostContent: true
         )
