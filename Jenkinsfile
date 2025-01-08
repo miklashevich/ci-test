@@ -11,17 +11,17 @@ pipeline {
     }
 
      triggers {
-        GenericTrigger(
-            causeString: 'Triggered by Webhook',
-            genericVariables: [
-            [key: 'PR_NUMBER', value: '$pull_request.number'], // номер PR из Webhook
-            [key: 'TARGET_BRANCH', value: '$pull_request.base.ref'] // Ветка назначения из Webhook
+    GenericTrigger(
+        causeString: 'Triggered by Webhook',
+        genericVariables: [
+            [key: 'PR_NUMBER', value: '$.pull_request.number'], // Обновлено: правильный JSONPath
+            [key: 'TARGET_BRANCH', value: '$.pull_request.base.ref'] // Обновлено: правильный JSONPath
         ],
-            token: env.GITHUB_TOKEN, 
-            printContributedVariables: true,
-            printPostContent: true
-        )
-    }
+        token: env.GITHUB_TOKEN,
+        printContributedVariables: true,
+        printPostContent: true
+    )
+}
 
     stages {
 
