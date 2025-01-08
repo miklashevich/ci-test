@@ -25,18 +25,14 @@ pipeline {
 
     stages {
 
-       stage('Print Environment Variables') {
-            steps {
-                script {
-                    // Вывод всех переменных окружения
-                    echo "Доступные переменные окружения:"
-                    env.each { key, value ->
-                        echo "${key} = ${value}"
-                    }
-                }
-            }
+       stage('Debug Webhook') {
+    steps {
+        script {
+            echo "Полученный payload:"
+            echo "${env.genericWebhookPayload}"
         }
-
+    }
+}
         stage('Validate Webhook Data') {
             steps {
                 script {
