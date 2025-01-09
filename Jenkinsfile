@@ -14,13 +14,13 @@ pipeline {
     GenericTrigger(
         causeString: 'Triggered by Webhook',
         genericVariables: [
-            [key: 'PR_NUMBER', value: '$.pull_request.number'],
-            [key: 'TARGET_BRANCH', value: '$.pull_request.base.ref']
+            [key: 'PR_NUMBER', value: '$.number'],  // Обновите путь
+            [key: 'TARGET_BRANCH', value: '$.repository.default_branch']  // Для тестов
         ],
         token: 'github_token',
-        printPostContent: true, // Показывает полный payload
-        printContributedVariables: true, // Показывает извлеченные переменные
-        silentResponse: false // Включает отладочные сообщения
+        printPostContent: true,
+        printContributedVariables: true,
+        silentResponse: false
     )
 }
 
