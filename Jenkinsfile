@@ -15,7 +15,7 @@ pipeline {
         causeString: 'Triggered by Webhook',
         genericVariables: [
             [key: 'PR_NUMBER', value: '$.number'],  
-            [key: 'TARGET_BRANCH', value: '$.repository.default_branch']  
+            [key: 'TARGET_BRANCH', value: '$.pull_request.base.ref']  
         ],
         token: 'github_token',
         printPostContent: true,
