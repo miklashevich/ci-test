@@ -25,6 +25,15 @@ pipeline {
 }
 
     stages {
+        stage('Debug Webhook') {
+    steps {
+        script {
+            echo "Полученный Webhook Payload:"
+            echo "${env.genericWebhookPayload ?: 'Пустой payload!'}"
+        }
+    }
+}
+
 
         stage('Validate Webhook Data') {
     steps {
