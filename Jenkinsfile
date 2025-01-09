@@ -29,27 +29,26 @@ pipeline {
     steps {
         script {
             echo "Полученный payload:"
-            echo "${env.genericWebhookPayload}"
+            echo "${env.genericWebhookPayload}" // Покажет полный JSON payload
         }
     }
 }
         stage('Validate Webhook Data') {
-            steps {
-                script {
-                    
-                    echo "PR_NUMBER: ${env.PR_NUMBER}"
-                    echo "TARGET_BRANCH: ${env.TARGET_BRANCH}"
+    steps {
+        script {
+            echo "PR_NUMBER: ${env.PR_NUMBER ?: 'Не задано'}"
+            echo "TARGET_BRANCH: ${env.TARGET_BRANCH ?: 'Не задано'}"
 
-                    if (!env.PR_NUMBER || !env.TARGET_BRANCH) {
-                        error "Отсутствует необходимая информация из Webhook. Проверьте передаваемые данные."
-                    }
+            if (!env.PR_NUMBER || !env.TARGET_BRANCH) {
+                error "Ошибка: данные Webhook некорректны или отсутствуют. Проверьте JSONPath в настройках GenericTrigger."
+            }
 
-                    if (env.TARGET_BRANCH != "develop") {
-                        error "PR #${PR_NUMBER} направлен не в develop. Мерж невозможен."
-                    }
-                }
+            if (env.TARGET_BRANCH != 'develop') {
+                error "PR #${env.PR_NUMBER} направлен в неправильную ветку: ${env.TARGET_BRANCH}. Мерж невозможен."
             }
         }
+    }
+}
 
         stage('Checkout PR') {
             steps {
