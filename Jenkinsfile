@@ -10,16 +10,17 @@ pipeline {
         GITHUB_TOKEN = credentials('github_token')
     }
 
-     triggers {
+    triggers {
     GenericTrigger(
         causeString: 'Triggered by Webhook',
         genericVariables: [
-            [key: 'PR_NUMBER', value: '$.pull_request.number'], // Обновлено: правильный JSONPath
-            [key: 'TARGET_BRANCH', value: '$.pull_request.base.ref'] // Обновлено: правильный JSONPath
+            [key: 'PR_NUMBER', value: '$.pull_request.number'],
+            [key: 'TARGET_BRANCH', value: '$.pull_request.base.ref']
         ],
-        token: env.GITHUB_TOKEN,
-        printContributedVariables: true,
-        printPostContent: true
+        token: 'github_token',
+        printPostContent: true, // Показывает полный payload
+        printContributedVariables: true, // Показывает извлеченные переменные
+        silentResponse: false // Включает отладочные сообщения
     )
 }
 
