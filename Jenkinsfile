@@ -26,14 +26,6 @@ pipeline {
 
     stages {
 
-       stage('Debug Webhook') {
-    steps {
-        script {
-            echo "Полученный payload:"
-            echo "${env.genericWebhookPayload}" // Покажет полный JSON payload
-        }
-    }
-}
         stage('Validate Webhook Data') {
     steps {
         script {
@@ -64,32 +56,37 @@ pipeline {
         }
 
         stage('Build Docker Images') {
-            steps {
-                script {
-                    // Определяем изменённые микросервисы
-                    def changedServices = sh(script: "git diff --name-only origin/develop...pr-${PR_NUMBER} | grep '^services/' | cut -d '/' -f 2 | sort -u", returnStdout: true).trim().split('\n')
+    steps {
+        script {
+            
+            sh "git fetch origin develop:develop"
 
-                    if (changedServices.isEmpty()) {
-                        echo "Нет изменённых микросервисов для сборки."
-                    } else {
-                        for (service in changedServices) {
-                            sh """
-                            docker build -t ${DOCKER_REGISTRY}/${service}:pr-${PR_NUMBER} ./services/${service}
-                            docker tag ${DOCKER_REGISTRY}/${service}:pr-${PR_NUMBER} ${DOCKER_REGISTRY}/${service}:latest
-                            docker push ${DOCKER_REGISTRY}/${service}:pr-${PR_NUMBER}
-                            docker push ${DOCKER_REGISTRY}/${service}:latest
-                            """
-                        }
-                    }
+            def changedServices = sh(script: """
+                git diff --name-only develop...pr-${PR_NUMBER} | grep '^micro-services/' | cut -d '/' -f 2 | sort -u
+            """, returnStdout: true).trim().split('\n')
+
+            if (changedServices.isEmpty()) {
+                echo "Нет изменённых микросервисов для сборки."
+            } else {
+                for (service in changedServices) {
+                    sh """
+                    docker build -t ${DOCKER_REGISTRY}/${service}:pr-${PR_NUMBER} ./services/${service}
+                    docker tag ${DOCKER_REGISTRY}/${service}:pr-${PR_NUMBER} ${DOCKER_REGISTRY}/${service}:latest
+                    docker push ${DOCKER_REGISTRY}/${service}:pr-${PR_NUMBER}
+                    docker push ${DOCKER_REGISTRY}/${service}:latest
+                    """
                 }
             }
         }
+    }
+}
+
 
         stage('Run Tests') {
             steps {
                 script {
                     // Тестирование Docker-образов
-                    def changedServices = sh(script: "git diff --name-only origin/develop...pr-${PR_NUMBER} | grep '^services/' | cut -d '/' -f 2 | sort -u", returnStdout: true).trim().split('\n')
+                    def changedServices = sh(script: "git diff --name-only origin/develop...pr-${PR_NUMBER} | grep '^micro-services/' | cut -d '/' -f 2 | sort -u", returnStdout: true).trim().split('\n')
 
                     if (changedServices.isEmpty()) {
                         echo "Нет изменённых микросервисов для тестирования."
