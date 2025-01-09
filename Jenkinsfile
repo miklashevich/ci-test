@@ -70,7 +70,7 @@ pipeline {
             } else {
                 for (service in changedServices) {
                     sh """
-                    docker build -t ${DOCKER_REGISTRY}/${service}:pr-${PR_NUMBER} ./services/${service}
+                    docker build -t ${DOCKER_REGISTRY}/${service}:pr-${PR_NUMBER} ./micro-services/${service}
                     docker tag ${DOCKER_REGISTRY}/${service}:pr-${PR_NUMBER} ${DOCKER_REGISTRY}/${service}:latest
                     docker push ${DOCKER_REGISTRY}/${service}:pr-${PR_NUMBER}
                     docker push ${DOCKER_REGISTRY}/${service}:latest
