@@ -63,59 +63,56 @@ pipeline {
             }
         }
 
+        
         stage('Build Docker Images') {
-            steps {
-                script {
-                    sh "git fetch origin develop:develop"
+    steps {
+        script {
+            sh "git fetch origin develop:develop"
 
-                    def changedServices = sh(script: """
-                        git diff --name-only develop...pr-${PR_NUMBER} | grep '^micro-services/' | cut -d '/' -f 2 | sort -u
-                    """, returnStdout: true).trim().split('\n')
+            def changedServices = sh(script: """
+                git diff --name-only develop...pr-${PR_NUMBER} | grep '^micro-services/' | cut -d '/' -f 2 | sort -u
+            """, returnStdout: true).trim().split('\n')
 
-                    if (changedServices.size() == 1 && changedServices[0].trim() == "") {
-                        changedServices = [] // Пустой массив, если результат команды пустой
-                    }
-
-                    if (changedServices.isEmpty()) {
-                        echo "Нет изменённых микросервисов для сборки."
-                    } else {
-                        for (service in changedServices) {
-                            sh """
-                            docker build -t ${DOCKER_REGISTRY}/${service}:pr-${PR_NUMBER} ./micro-services/${service}
-                            docker tag ${DOCKER_REGISTRY}/${service}:pr-${PR_NUMBER} ${DOCKER_REGISTRY}/${service}:latest
-                            docker push ${DOCKER_REGISTRY}/${service}:pr-${PR_NUMBER}
-                            docker push ${DOCKER_REGISTRY}/${service}:latest
-                            """
-                        }
-                    }
+            // Проверка на пустой массив
+            if (changedServices.length == 0 || (changedServices.size() == 1 && changedServices[0].trim() == "")) {
+                echo "Нет изменённых микросервисов для сборки."
+            } else {
+                for (service in changedServices) {
+                    sh """
+                    docker build -t ${DOCKER_REGISTRY}/${service}:pr-${PR_NUMBER} ./micro-services/${service}
+                    docker tag ${DOCKER_REGISTRY}/${service}:pr-${PR_NUMBER} ${DOCKER_REGISTRY}/${service}:latest
+                    docker push ${DOCKER_REGISTRY}/${service}:pr-${PR_NUMBER}
+                    docker push ${DOCKER_REGISTRY}/${service}:latest
+                    """
                 }
             }
         }
-
+    }
+}
+        
+        
         stage('Run Tests') {
-            steps {
-                script {
-                    // Тестирование Docker-образов
-                    def changedServices = sh(script: """
-                        git diff --name-only origin/develop...pr-${PR_NUMBER} | grep '^micro-services/' | cut -d '/' -f 2 | sort -u
-                    """, returnStdout: true).trim().split('\n')
-                
-                    if (changedServices.size() == 1 && changedServices[0].trim() == "") {
-                         changedServices = [] // Пустой массив, если результат команды пустой
-                    }
+    steps {
+        script {
+            // Тестирование Docker-образов
+            def changedServices = sh(script: """
+                git diff --name-only origin/develop...pr-${PR_NUMBER} | grep '^micro-services/' | cut -d '/' -f 2 | sort -u
+            """, returnStdout: true).trim().split('\n')
 
-                    if (changedServices.isEmpty()) {
-                        echo "Нет изменённых микросервисов для тестирования."
-                    } else {
-                        for (service in changedServices) {
-                            sh """
-                            docker run --rm ${DOCKER_REGISTRY}/${service}:pr-${PR_NUMBER} /bin/sh -c "run_tests.sh"
-                            """
-                        }
-                    }
+            // Проверка на пустой массив
+            if (changedServices.length == 0 || (changedServices.size() == 1 && changedServices[0].trim() == "")) {
+                echo "Нет изменённых микросервисов для тестирования."
+            } else {
+                for (service in changedServices) {
+                    sh """
+                    docker run --rm ${DOCKER_REGISTRY}/${service}:pr-${PR_NUMBER} /bin/sh -c "run_tests.sh"
+                    """
                 }
             }
         }
+    }
+}
+
 
         stage('Merge PR') {
             steps {

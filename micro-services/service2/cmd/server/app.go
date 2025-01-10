@@ -41,7 +41,7 @@ func main() {
 func mainHandler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		opsProcessed.Inc()
-		fmt.Fprintln(w, "Hello, service2!")
+		fmt.Fprintln(w, "Hello, service_2!")
 		fmt.Fprintln(w, "Metod:"+r.Method)
 		fmt.Fprintln(w, "Uri:"+r.RequestURI)
 		fmt.Fprintln(w, "Host:"+r.Host)
