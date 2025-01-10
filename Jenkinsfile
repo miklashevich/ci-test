@@ -25,14 +25,6 @@ pipeline {
     }
 
     stages {
-        stage('Debug Webhook') {
-            steps {
-                script {
-                    echo "Полученный Webhook Payload:"
-                    echo "${env.genericWebhookPayload ?: 'Пустой payload!'}"
-                }
-            }
-        }
 
         stage('Validate Webhook Data') {
             steps {
@@ -54,7 +46,6 @@ pipeline {
         stage('Checkout PR') {
             steps {
                 script {
-                    // Клонируем PR-ветку
                     sh """
                     git fetch origin pull/${PR_NUMBER}/head:pr-${PR_NUMBER}
                     git checkout pr-${PR_NUMBER}
@@ -63,7 +54,6 @@ pipeline {
             }
         }
 
-        
         stage('Build Docker Images') {
     steps {
         script {
@@ -81,14 +71,19 @@ pipeline {
                     sh """
                     docker build -t ${DOCKER_REGISTRY}/${service}:pr-${PR_NUMBER} ./micro-services/${service}
                     docker tag ${DOCKER_REGISTRY}/${service}:pr-${PR_NUMBER} ${DOCKER_REGISTRY}/${service}:latest
-                    docker push ${DOCKER_REGISTRY}/${service}:pr-${PR_NUMBER}
-                    docker push ${DOCKER_REGISTRY}/${service}:latest
                     """
+                    
+                    withDockerRegistry([credentialsId: "${DOCKER_REGISTRY_CREDENTIALS}", url: "${DOCKER_REGISTRY}"]) {
+                        
+                        sh "docker push ${DOCKER_REGISTRY}/${service}:pr-${PR_NUMBER}"
+                        sh "docker push ${DOCKER_REGISTRY}/${service}:latest"
+                    }
                 }
             }
         }
     }
 }
+
         
         
         stage('Run Tests') {
