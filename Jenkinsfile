@@ -73,7 +73,7 @@ pipeline {
                     docker tag ${DOCKER_REGISTRY}/${service}:pr-${PR_NUMBER} ${DOCKER_REGISTRY}/${service}:latest
                     """
                     
-                    withDockerRegistry([credentialsId: "${DOCKER_REGISTRY_CREDENTIALS}", url: "${DOCKER_REGISTRY}"]) {
+                    withDockerRegistry([credentialsId: "${DOCKER_REGISTRY_CREDENTIALS}", url: "${DOCKER_REGISTRY_URL}"]) {
                         
                         sh "docker push ${DOCKER_REGISTRY}/${service}:pr-${PR_NUMBER}"
                         sh "docker push ${DOCKER_REGISTRY}/${service}:latest"
