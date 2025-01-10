@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         PROJECT_NAME = "ci-test"
-        DOCKER_HUB_REPO = "mik1979"
+        DOCKER_REGISTRY = "mik1979"
         DOCKER_REGISTRY_URL = "https://index.docker.io/v1/"
         DOCKER_REGISTRY_CREDENTIALS = "dockerhub-credentials-id"
         DOCKER_BUILDKIT = "1"
