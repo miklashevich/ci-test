@@ -11,46 +11,45 @@ pipeline {
     }
 
     triggers {
-    GenericTrigger(
-        causeString: 'Triggered by Webhook',
-        genericVariables: [
-            [key: 'PR_NUMBER', value: '$.number'],  
-            [key: 'TARGET_BRANCH', value: '$.pull_request.base.ref']  
-        ],
-        token: 'github_token',
-        printPostContent: true,
-        printContributedVariables: true,
-        silentResponse: false
-    )
-}
+        GenericTrigger(
+            causeString: 'Triggered by Webhook',
+            genericVariables: [
+                [key: 'PR_NUMBER', value: '$.number'],  
+                [key: 'TARGET_BRANCH', value: '$.pull_request.base.ref']  
+            ],
+            token: 'github_token',
+            printPostContent: true,
+            printContributedVariables: true,
+            silentResponse: false
+        )
+    }
 
     stages {
         stage('Debug Webhook') {
-    steps {
-        script {
-            echo "Полученный Webhook Payload:"
-            echo "${env.genericWebhookPayload ?: 'Пустой payload!'}"
+            steps {
+                script {
+                    echo "Полученный Webhook Payload:"
+                    echo "${env.genericWebhookPayload ?: 'Пустой payload!'}"
+                }
+            }
         }
-    }
-}
-
 
         stage('Validate Webhook Data') {
-    steps {
-        script {
-            echo "PR_NUMBER: ${env.PR_NUMBER ?: 'Не задано'}"
-            echo "TARGET_BRANCH: ${env.TARGET_BRANCH ?: 'Не задано'}"
+            steps {
+                script {
+                    echo "PR_NUMBER: ${env.PR_NUMBER ?: 'Не задано'}"
+                    echo "TARGET_BRANCH: ${env.TARGET_BRANCH ?: 'Не задано'}"
 
-            if (!env.PR_NUMBER || !env.TARGET_BRANCH) {
-                error "Ошибка: данные Webhook некорректны или отсутствуют. Проверьте JSONPath в настройках GenericTrigger."
-            }
+                    if (!env.PR_NUMBER || !env.TARGET_BRANCH) {
+                        error "Ошибка: данные Webhook некорректны или отсутствуют. Проверьте JSONPath в настройках GenericTrigger."
+                    }
 
-            if (env.TARGET_BRANCH != 'develop') {
-                error "PR #${env.PR_NUMBER} направлен в неправильную ветку: ${env.TARGET_BRANCH}. Мерж невозможен."
+                    if (env.TARGET_BRANCH != 'develop') {
+                        error "PR #${env.PR_NUMBER} направлен в неправильную ветку: ${env.TARGET_BRANCH}. Мерж невозможен."
+                    }
+                }
             }
         }
-    }
-}
 
         stage('Checkout PR') {
             steps {
@@ -65,37 +64,45 @@ pipeline {
         }
 
         stage('Build Docker Images') {
-    steps {
-        script {
-            
-            sh "git fetch origin develop:develop"
+            steps {
+                script {
+                    sh "git fetch origin develop:develop"
 
-            def changedServices = sh(script: """
-                git diff --name-only develop...pr-${PR_NUMBER} | grep '^micro-services/' | cut -d '/' -f 2 | sort -u
-            """, returnStdout: true).trim().split('\n')
+                    def changedServices = sh(script: """
+                        git diff --name-only develop...pr-${PR_NUMBER} | grep '^micro-services/' | cut -d '/' -f 2 | sort -u
+                    """, returnStdout: true).trim().split('\n')
 
-            if (changedServices.isEmpty()) {
-                echo "Нет изменённых микросервисов для сборки."
-            } else {
-                for (service in changedServices) {
-                    sh """
-                    docker build -t ${DOCKER_REGISTRY}/${service}:pr-${PR_NUMBER} ./micro-services/${service}
-                    docker tag ${DOCKER_REGISTRY}/${service}:pr-${PR_NUMBER} ${DOCKER_REGISTRY}/${service}:latest
-                    docker push ${DOCKER_REGISTRY}/${service}:pr-${PR_NUMBER}
-                    docker push ${DOCKER_REGISTRY}/${service}:latest
-                    """
+                    if (changedServices.size() == 1 && changedServices[0].trim() == "") {
+                        changedServices = [] // Пустой массив, если результат команды пустой
+                    }
+
+                    if (changedServices.isEmpty()) {
+                        echo "Нет изменённых микросервисов для сборки."
+                    } else {
+                        for (service in changedServices) {
+                            sh """
+                            docker build -t ${DOCKER_REGISTRY}/${service}:pr-${PR_NUMBER} ./micro-services/${service}
+                            docker tag ${DOCKER_REGISTRY}/${service}:pr-${PR_NUMBER} ${DOCKER_REGISTRY}/${service}:latest
+                            docker push ${DOCKER_REGISTRY}/${service}:pr-${PR_NUMBER}
+                            docker push ${DOCKER_REGISTRY}/${service}:latest
+                            """
+                        }
+                    }
                 }
             }
         }
-    }
-}
-
 
         stage('Run Tests') {
             steps {
                 script {
                     // Тестирование Docker-образов
-                    def changedServices = sh(script: "git diff --name-only origin/develop...pr-${PR_NUMBER} | grep '^micro-services/' | cut -d '/' -f 2 | sort -u", returnStdout: true).trim().split('\n')
+                    def changedServices = sh(script: """
+                        git diff --name-only origin/develop...pr-${PR_NUMBER} | grep '^micro-services/' | cut -d '/' -f 2 | sort -u
+                    """, returnStdout: true).trim().split('\n')
+                
+                    if (changedServices.size() == 1 && changedServices[0].trim() == "") {
+                         changedServices = [] // Пустой массив, если результат команды пустой
+                    }
 
                     if (changedServices.isEmpty()) {
                         echo "Нет изменённых микросервисов для тестирования."
